@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { makeLeaves } from '../lib/art';
 import RichText from './ui/RichText';
@@ -19,10 +19,11 @@ function HeroArt() {
 }
 
 export default function Hero() {
-  const { hero } = useStore().store;
+  const { hero,coverUrl } = useStore().store;
+  const [broken,setBroken]=useState(null);
   return (
     <section className="hero">
-      <HeroArt /><div className="shade" />
+      {coverUrl&&broken!==coverUrl?<img className="hero-cover" key={coverUrl} src={coverUrl} alt="" fetchPriority="high" onError={()=>setBroken(coverUrl)}/>:<HeroArt/>}<div className={'shade'+(coverUrl&&broken!==coverUrl?' with-cover':'')} />
       <div className="tx">
         <h1>{hero.title.split('|').map((l, i) => <span key={i}><i style={{ animationDelay: i * 0.12 + 's' }}><RichText text={l} /></i></span>)}</h1>
         <p>{hero.subtitle}</p>

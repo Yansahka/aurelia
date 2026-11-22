@@ -16,15 +16,19 @@ import { CartProvider } from './context/CartContext';
 import { StoreGate, StoreProvider } from './context/StoreContext';
 import { ToastProvider } from './context/ToastContext';
 import Landing from './pages/Landing';
+import ShopTheme from './components/ShopTheme';
+import ProductPage from './components/ProductPage';
+import { currentProductId } from './config';
 
 function Shop() {
-  const [query, setQuery] = useState('');
-  const [family, setFamily] = useState(null);
-  const search = (v) => { setQuery(v); if (v) document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }); };
+  const [query, setQuery] = useState(()=>new URLSearchParams(location.search).get('q')||'');
+  const [family, setFamily] = useState(()=>new URLSearchParams(location.search).get('category')||null);
+  const productId=currentProductId();
+  const search = (v) => { setQuery(v); if (v&&!productId) document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }); };
   return (
-    <>
+    <ShopTheme>
       <Navbar query={query} onQuery={search} />
-      <main>
+      {productId?<ProductPage id={productId}/>:<main>
         <Hero />
         <ProductCarousel query={query} family={family} onFamily={setFamily} onResetFamily={() => setFamily(null)} />
         <Story />
@@ -33,11 +37,11 @@ function Shop() {
         <NewArrival />
         <section className="sec" id="gallery"><Gallery /><Reviews /></section>
         <Commitment />
-      </main>
+      </main>}
       <Footer />
       <CartDrawer />
       <WhatsAppButton />
-    </>
+    </ShopTheme>
   );
 }
 

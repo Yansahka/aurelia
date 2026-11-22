@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-22",
+  "storeUsedForBranding": "atelier-horizon-test2211",
+  "brandingSaved": true,
+  "logoLoadedWidth": 240,
+  "coverLoadedWidth": 1800,
+  "palette": "Nuit",
+  "productDirectLink": "/s/atelier-horizon-test2211/p/224a18ae-f669-4cf7-ba8e-9a5483afa5e2",
+  "secondPhotoAndZoomVerified": true,
+  "escapeRestoresFocus": true,
+  "copyLinkVerified": true,
+  "quantityAdded": 2,
+  "previousCartQuantity": 1,
+  "resultingCartQuantity": 3,
+  "resultingCartTotalFCFA": 37500,
+  "quantity9ForStock8DisablesAdd": true,
+  "searchFromProductVerified": true,
+  "mobile": [
+    { "surface": "product", "viewport": 390, "documentWidth": 375 },
+    { "surface": "product", "viewport": 320, "documentWidth": 305 },
+    { "surface": "settings", "viewport": 390, "documentWidth": 390, "previewWidth": 286 },
+    { "surface": "settings", "viewport": 320, "documentWidth": 320, "previewWidth": 216 }
+  ],
+  "yanshopJasminBlancDisabled": true,
+  "whatsappMessagesSent": false,
+  "browserConsoleErrors": [],
+  "automatedTests": { "passed": 42, "failed": 0 },
+  "postgresBrandingTests": { "passed": 8, "failed": 0 },
+  "postgresCatalogueTests": { "passed": 9, "failed": 0 },
+  "postgresSaasChecks": { "passed": 17, "failed": 0 },
+  "builds": "passed",
+  "viteSharedModuleAccess": "both interfaces HTTP 200"
+}

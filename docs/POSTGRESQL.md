@@ -82,6 +82,8 @@ Remplacer `DATABASE_URL` dans `.env` par la connexion `aurelia_app`. Garder la c
 
 ## 4. Démarrer et valider
 
+La migration 004 ajoute l’identité visuelle des boutiques : logo, couverture, couleurs et titre d’accueil. Elle conserve les données existantes. Les réglages se font dans « Ma boutique » ; les images utilisent des URL HTTPS. Les fiches publiques sont disponibles sur `/s/:slug/p/:id`, avec la même session de panier que le catalogue. Les produits masqués ou supprimés ne sont pas servis par `/v1/public/stores/:slug/products/:id`.
+
 ```powershell
 npm install
 npm --prefix aurelia-front install

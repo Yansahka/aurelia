@@ -4,21 +4,13 @@ import { resolveSlug } from '../config';
 import { buildOrderMessage, whatsappUrl } from '../lib/whatsapp';
 import { useStore } from './StoreContext';
 import { useToast } from './ToastContext';
+import { cartReducer as reducer } from '../lib/cart';
 
 const Ctx = createContext(null);
 export const useCart = () => useContext(Ctx);
 
 const KEY = () => 'cart:' + resolveSlug();
 const init = () => { try { return JSON.parse(localStorage.getItem(KEY()) || '[]'); } catch { return []; } };
-
-function reducer(items, a) {
-  switch (a.type) {
-    case 'add': return items.some((x) => x.id === a.id) ? items.map((x) => (x.id === a.id ? { ...x, qty: x.qty + 1 } : x)) : [...items, { id: a.id, qty: 1 }];
-    case 'qty': return items.map((x) => (x.id === a.id ? { ...x, qty: x.qty + a.d } : x)).filter((x) => x.qty > 0);
-    case 'clear': return [];
-    default: return items;
-  }
-}
 
 export function CartProvider({ children }) {
   const { store, byId, money } = useStore();
@@ -34,12 +26,14 @@ export function CartProvider({ children }) {
   const total = lines.reduce((s, l) => s + l.product.price * l.qty, 0);
   const count = lines.reduce((s, l) => s + l.qty, 0);
 
-  const add = useCallback((id) => {
+  const add = useCallback((id,qty=1) => {
     const p = byId(id); if (!p || p.stock === 0) return;
-    dispatch({ type: 'add', id }); toast(p.name + ' ajouté à votre panier'); api.track('add_to_cart', id);
-  }, [byId, toast]);
+    const existing=items.find(i=>i.id===id)?.qty||0;
+    if(!Number.isInteger(qty)||qty<1||existing+qty>p.stock){toast('Quantité supérieure au stock disponible.');return false;}
+    dispatch({ type: 'add', id,qty,max:p.stock }); toast(p.name + ' ajouté à votre panier'); api.track('add_to_cart', id);return true;
+  }, [byId, toast,items]);
 
-  const changeQty = (id, d) => dispatch({ type: 'qty', id, d });
+  const changeQty = (id, d) => {const p=byId(id);if(!p)return;const qty=items.find(i=>i.id===id)?.qty||0;if(d>0&&qty>=p.stock){toast('Stock maximum atteint.');return;}dispatch({ type: 'qty', id, d,max:p.stock });};
 
   // Enregistre le lead (non bloquant) puis ouvre WhatsApp avec la commande pré-remplie.
   const checkout = async ({ customerName, phone }) => {

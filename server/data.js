@@ -19,8 +19,8 @@ export function publicHome(store, db) {
   const products = db.products.filter(p => p.isActive && !p.deletedAt).sort((a,b) => a.position-b.position);
   const reviews = db.reviews.filter(r => r.isPublished);
   return {
-    store: { slug: store.slug, name: store.name, tagline: store.tagline, currency: store.currency, locale: store.locale, whatsapp: store.whatsapp, whatsappMessage: store.whatsappMessage || `Bonjour ${store.name}, je souhaite commander :`,
-      hero: { title: `${store.name}|Votre prochain|*coup de cœur*`, subtitle: store.tagline || 'Découvrez nos produits et échangez directement avec nous sur WhatsApp.', cta: 'Découvrir les produits', statValue: String(products.length), statLabel: 'produits à découvrir' },
+    store: { slug: store.slug, name: store.name, tagline: store.tagline, currency: store.currency, locale: store.locale, whatsapp: store.whatsapp, logoUrl:store.logoUrl, coverUrl:store.coverUrl, accentColor:store.accentColor, backgroundColor:store.backgroundColor, textColor:store.textColor, whatsappMessage: store.whatsappMessage || `Bonjour ${store.name}, je souhaite commander :`,
+      hero: { title: store.heroTitle||`${store.name}|Votre prochain|*coup de cœur*`, subtitle: store.tagline || 'Découvrez nos produits et échangez directement avec nous sur WhatsApp.', cta: 'Découvrir les produits', statValue: String(products.length), statLabel: 'produits à découvrir' },
       story: `Bienvenue chez ${store.name}. Découvrez notre sélection de *produits* et contactez-nous sur WhatsApp pour préparer votre commande.`,
       commitment: 'Une question sur un *produit* ? Contactez notre boutique pour recevoir des *conseils personnalisés*.',
       footer: { tagline: 'Les nouvelles de *notre boutique*', columns: [{ title: 'Découvrir', links: [{label:'La collection',href:'#shop'},{label:'Contact WhatsApp',href:'#wa'}] }] } },

@@ -4,6 +4,8 @@ Plateforme de boutiques de produits physiques : site commercial, inscription ven
 
 Le lot 1 ajoute les catégories par boutique, les références facultatives, les descriptions, les caractéristiques libres et une galerie de 8 photos HTTPS maximum. Les photos se gèrent par liens ; le téléversement de fichiers et les variantes ne font pas partie de ce lot. Les produits sans photo utilisent un visuel neutre. Voir [le rapport du lot 1](docs/catalogue-universel-lot1/rapport-lot1.html).
 
+Le lot 2 ajoute logo, couverture, titre d’accueil et couleurs personnalisables dans « Ma boutique », avec un aperçu avant sauvegarde. Les images utilisent des liens HTTPS. Chaque produit public a maintenant une fiche à `/s/votre-slug/p/identifiant` : galerie agrandissable, descriptions, caractéristiques, avis publiés, produits associés, copie du lien et quantité dans la limite du stock. Le panier est commun à la boutique et à ses fiches. Voir [le rapport du lot 2](docs/personnalisation-boutiques-lot2/rapport-lot2.html).
+
 ## Demarrer en local avec PostgreSQL
 
 La base locale est `aurelia_db` sur `localhost:5432`. Renseigner le compte de migration dans `.env` avec `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` et `PGPASSWORD`, puis lancer :
@@ -75,6 +77,8 @@ La vitrine et les boutiques sont sur **http://localhost:5173**, le dashboard sur
 `npm run build` compile les deux interfaces.
 
 `npm run test:catalogue:postgres` vérifie catégories, photos, références, caractéristiques, commandes et isolation sur la vraie base configurée. Il crée deux boutiques de validation indépendantes et conserve ces données. `npm test` utilise des bases isolées en mémoire ; les fichiers sont exécutés successivement pour limiter les moteurs WASM simultanés sous Windows.
+
+`npm run test:branding:postgres` vérifie l’identité visuelle, les contrastes, les liens produits, les avis publiés, les produits masqués et l’isolation sur PostgreSQL natif. Il crée deux boutiques de validation et conserve leurs données.
 
 ## Périmètre actuel
 

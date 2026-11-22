@@ -12,5 +12,7 @@ import './styles/gallery.css';
 import './styles/footer.css';
 import './styles/overlays.css';
 import './styles/responsive.css';
+import './styles/branding.css';
+import './styles/product-page.css';
 
 createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>);

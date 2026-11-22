@@ -8,6 +8,7 @@ import { hashPassword, verifyPassword, digest, newToken, fail, text, email, phon
 import { row, loadData, publicHome } from './data.js';
 import { overview, report, enrich } from './stats.js';
 import { catalogueProducts, productExtras, saveExtras, categoryRoutes } from './catalogue.js';
+import { color, imageUrl, validateBranding } from './branding.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const uuid = id => { if (!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id)) fail(404, 'Élément introuvable.'); return id; };
@@ -97,8 +98,11 @@ export function createApp(pool, options = {}) {
   app.get('/v1/store',async(req,res)=>res.json(await tenant(req,async(c,s)=>s)));
   app.patch('/v1/store',async(req,res)=>res.json(await tenant(req,async(c,s)=>{
     const d=req.body || {}, values=[], cols=[];
+    validateBranding(s,d);
     const fields={name:['name',v=>text(v,'Nom',100)],slug:['slug',slug],tagline:['tagline',v=>text(v,'Slogan',500,false)],whatsapp:['whatsapp_number',phone],whatsappMessage:['whatsapp_message',v=>text(v,'Message',1000,false)],shareMessage:['share_message',v=>text(v,'Message',1000,false)],monthlyTarget:['monthly_target',v=>integer(v,'Objectif')]};
     for(const [key,[column,check]] of Object.entries(fields)) if(own(d,key)) {values.push(check(d[key]));cols.push(`${column}=$${values.length}`);}
+    const branding={logoUrl:['logo_url',imageUrl],coverUrl:['cover_url',imageUrl],accentColor:['accent_color',color],backgroundColor:['background_color',color],textColor:['text_color',color],heroTitle:['hero_title',v=>text(v,'Titre d’accueil',180,false)]};
+    for(const [key,[column,check]] of Object.entries(branding))if(own(d,key)){values.push(check(d[key]));cols.push(`${column}=$${values.length}`);}
     if(!cols.length) fail(400,'Aucune information à enregistrer.');
     values.push(s.id);return one(await c.query(`UPDATE stores SET ${cols.join(',')} WHERE id=$${values.length} RETURNING *`,values));
   })));
@@ -178,6 +182,12 @@ export function createApp(pool, options = {}) {
     const reviews=(await c.query('SELECT author,text,role,rating,is_published FROM reviews WHERE store_id=$1 AND is_published',[s.id])).rows.map(row);
     return publicHome(s,{products,reviews,categories});
   })));
+  app.get('/v1/public/stores/:slug/products/:id',async(req,res)=>res.json(await publicTenant(req,async(c,s)=>{
+    const product=(await catalogueProducts(c,s.id,true)).find(p=>p.id===uuid(req.params.id));
+    if(!product)fail(404,'Produit indisponible.');
+    const reviews=(await c.query('SELECT author,text,role,rating FROM reviews WHERE store_id=$1 AND product_id=$2 AND is_published ORDER BY created_at DESC',[s.id,product.id])).rows;
+    return {product,reviews};
+  })));
   app.post('/v1/public/stores/:slug/orders',async(req,res)=>res.status(201).json(await publicTenant(req,async(c,s)=>{
     const d=req.body||{}, customerName=text(d.customerName,'Votre nom',100), customerPhone=phone(d.phone);
     if(!Array.isArray(d.items)||!d.items.length||d.items.length>50)fail(400,'Panier invalide.');
@@ -215,7 +225,7 @@ export function createApp(pool, options = {}) {
   app.use('/dashboard',express.static(dashboard));
   app.get(/^\/dashboard(?:\/.*)?$/, (req,res)=>res.sendFile(resolve(dashboard,'index.html')));
   app.use(express.static(front));
-  app.get(/^\/(?:s\/[^/]+\/?|demo\/?)?$/, (req,res)=>res.sendFile(resolve(front,'index.html')));
+  app.get(/^\/(?:s\/[^/]+(?:\/p\/[^/]+)?\/?|demo\/?)?$/, (req,res)=>res.sendFile(resolve(front,'index.html')));
   app.use((err,req,res,next)=>{
     const conflict=err.code==='23505'||err.code==='23503', bad=err.code==='22P02'||err.code==='23514';
     const status=err.status || (conflict?409:bad?400:500);

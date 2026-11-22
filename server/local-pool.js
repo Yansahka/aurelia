@@ -11,7 +11,7 @@ export async function createLocalPool(dataDir) {
   const applied=(await db.query('SELECT name FROM aurelia_migrations')).rows.map(r=>r.name);
   await db.exec('BEGIN');
   try {
-    for (const [name,path] of [['001-schema','../aurelia-dashboard/database/schema.sql'],['002-sessions','./migrations/002-sessions.sql'],['003-universal-catalogue','./migrations/003-universal-catalogue.sql']]) {
+    for (const [name,path] of [['001-schema','../aurelia-dashboard/database/schema.sql'],['002-sessions','./migrations/002-sessions.sql'],['003-universal-catalogue','./migrations/003-universal-catalogue.sql'],['004-store-branding','./migrations/004-store-branding.sql']]) {
       if(!applied.includes(name)){
         await db.exec(await readFile(new URL(path,import.meta.url),'utf8'));
         await db.query('INSERT INTO aurelia_migrations(name) VALUES($1)',[name]);
