@@ -1,0 +1,56 @@
+{
+  "code": "AU-5B4A287F",
+  "total": 39500,
+  "items": [
+    {
+      "productId": "224a18ae-f669-4cf7-ba8e-9a5483afa5e2",
+      "variantId": "74526191-ab47-43d5-b843-cbfbe7757afd",
+      "name": "T-shirt Horizon",
+      "size": "Unité",
+      "variantLabel": "Taille : L · Couleur : Bleu · Format : Unité",
+      "reference": "HOR-L-B-U",
+      "unitPrice": 14500,
+      "qty": 1
+    },
+    {
+      "productId": "224a18ae-f669-4cf7-ba8e-9a5483afa5e2",
+      "variantId": "bc9e053a-0fd9-4e45-b823-a7bac33dbd5c",
+      "name": "T-shirt Horizon",
+      "size": "Unité",
+      "variantLabel": "Taille : M · Couleur : Bleu · Format : Unité",
+      "reference": "HOR-M-B-U",
+      "unitPrice": 12500,
+      "qty": 2
+    }
+  ],
+  "snapshots": [
+    {
+      "name_snapshot": "T-shirt Horizon",
+      "unit_price": "14500",
+      "qty": 1,
+      "variant_id": "74526191-ab47-43d5-b843-cbfbe7757afd",
+      "variant_label": "Taille : L · Couleur : Bleu · Format : Unité",
+      "variant_reference": "HOR-L-B-U",
+      "variant_options": {
+        "Format": "Unité",
+        "Taille": "L",
+        "Couleur": "Bleu"
+      }
+    },
+    {
+      "name_snapshot": "T-shirt Horizon",
+      "unit_price": "12500",
+      "qty": 2,
+      "variant_id": "bc9e053a-0fd9-4e45-b823-a7bac33dbd5c",
+      "variant_label": "Taille : M · Couleur : Bleu · Format : Unité",
+      "variant_reference": "HOR-M-B-U",
+      "variant_options": {
+        "Format": "Unité",
+        "Taille": "M",
+        "Couleur": "Bleu"
+      }
+    }
+  ],
+  "messagePreview": "Bonjour Atelier Horizon, je souhaite commander :\n- 1 x T-shirt Horizon — Taille : L · Couleur : Bleu · Format : Unité [Réf. HOR-L-B-U] - 14500 FCFA\n- 2 x T-shirt Horizon — Taille : M · Couleur : Bleu · Format : Unité [Réf. HOR-M-B-U] - 25000 FCFA\nTotal : 39500 FCFA\nPouvez-vous me confirmer la disponibilité ? Merci !",
+  "messageSent": false
+}

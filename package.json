@@ -8,6 +8,7 @@
     "test:postgres": "node server/check-postgres.js",
     "test:catalogue:postgres": "node server/check-catalogue-postgres.js",
     "test:branding:postgres": "node server/check-branding-postgres.js",
+    "test:variants:postgres": "node server/check-variants-postgres.js",
     "db:migrate": "node server/migrate.js",
     "build": "npm --prefix aurelia-front run build && npm --prefix aurelia-dashboard run build",
     "test": "node --test --test-concurrency=1 server/test/*.test.js"

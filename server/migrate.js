@@ -26,6 +26,10 @@ try {
     await c.query(await readFile(new URL('./migrations/004-store-branding.sql', import.meta.url), 'utf8'));
     await c.query('INSERT INTO aurelia_migrations(name) VALUES ($1)', ['004-store-branding']);
   }
+  if (!applied.includes('005-product-variants')) {
+    await c.query(await readFile(new URL('./migrations/005-product-variants.sql', import.meta.url), 'utf8'));
+    await c.query('INSERT INTO aurelia_migrations(name) VALUES ($1)', ['005-product-variants']);
+  }
   await c.query('COMMIT');
   console.log('Migrations PostgreSQL appliquées.');
 } catch (e) { await c.query('ROLLBACK'); console.error('Migration échouée :', e.code || e.message); process.exitCode = 1; }

@@ -80,6 +80,14 @@ La vitrine et les boutiques sont sur **http://localhost:5173**, le dashboard sur
 
 `npm run test:branding:postgres` vérifie l’identité visuelle, les contrastes, les liens produits, les avis publiés, les produits masqués et l’isolation sur PostgreSQL natif. Il crée deux boutiques de validation et conserve leurs données.
 
+## Variantes de produits — lot 3
+
+Activer « Ce produit a des variantes » dans le formulaire produit, définir jusqu’à trois options (taille, couleur, format…), générer les combinaisons puis renseigner prix, ancien prix, stock, référence et disponibilité pour chacune. Limites : 20 valeurs par option et 100 combinaisons par produit. Les combinaisons conservées gardent leurs identifiants ; les variantes retirées sont archivées et les commandes gardent leurs libellés, références et prix historiques.
+
+La boutique exige un choix complet avant l’ajout au panier. Les variantes ont leurs propres lignes de panier et contrôles de stock. Le lien partagé de la fiche peut présélectionner une variante. Les produits simples existants restent inchangés.
+
+`npm run test:variants:postgres` vérifie ces parcours sur PostgreSQL natif et conserve deux boutiques de validation indépendantes. Le [rapport du lot 3](docs/variantes-produits-lot3/rapport-lot3.html) contient les résultats et les captures.
+
 ## Périmètre actuel
 
 Les commandes sont des demandes commerciales : aucun paiement en ligne, aucune réservation ni décrémentation automatique du stock. La disponibilité est vérifiée à la demande, puis le vendeur confirme sur WhatsApp. Les avis existants peuvent être publiés depuis le dashboard ; la collecte de nouveaux avis et la création de tâches ne sont pas encore proposées dans l’interface. Pas de facturation des abonnements, de vérification e-mail ni de récupération de mot de passe pour l’instant. Un compte correspond à une boutique et un propriétaire. Le changement de slug change immédiatement l’adresse publique et les anciens liens cessent de fonctionner.

@@ -1,10 +1,12 @@
 import { fail, text } from './security.js';
 import { row } from './data.js';
+import { variantSummary } from '../shared/variants.js';
 const id = value => {if(typeof value!=='string'||! /^[a-f0-9-]{36}$/i.test(value))fail(400,'Categorie invalide.');return value;};
 export async function catalogueProducts(c,storeId,publicOnly=false) {
  const products=(await c.query(`SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id=p.category_id AND c.store_id=p.store_id WHERE p.store_id=$1 ${publicOnly?'AND p.is_active AND p.deleted_at IS NULL':''} ORDER BY p.position,p.created_at,p.id`,[storeId])).rows.map(row);
  const photos=(await c.query('SELECT product_id,url,position FROM product_images WHERE store_id=$1 ORDER BY position',[storeId])).rows;
- return products.map(p=>({...p,images:photos.filter(i=>i.product_id===p.id).map(i=>i.url)}));
+ const variants=(await c.query(`SELECT * FROM product_variants WHERE store_id=$1 AND archived_at IS NULL ${publicOnly?'AND is_active':''} ORDER BY position,id`,[storeId])).rows.map(row);
+ return products.map(p=>{const rows=variants.filter(v=>v.productId===p.id);const summary=p.hasVariants&&rows.length?variantSummary(rows):p.hasVariants?{price:p.price,stock:0,oldPrice:null}:{};const variantOptions=publicOnly&&p.hasVariants?p.variantOptions.map(o=>({...o,values:o.values.filter(value=>rows.some(v=>v.options[o.name]===value))})):p.variantOptions;return {...p,...summary,variantOptions,variants:rows,images:photos.filter(i=>i.product_id===p.id).map(i=>i.url)};});
 }
 export async function productExtras(c,storeId,d,existing={}) {
  const p={...existing,...d};

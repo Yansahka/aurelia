@@ -8,7 +8,7 @@ export default function ProductCarousel({ query, family, onFamily, onResetFamily
   const track = useRef(null);
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return products.filter(p=>(!family||(family==='uncategorized'?!p.categoryId:(p.categoryId||p.family)===family))&&(!q||[p.name,p.reference,p.categoryName,p.tagline,p.size,...Object.values(p.attributes||{})].join(' ').toLowerCase().includes(q)));
+    return products.filter(p=>(!family||(family==='uncategorized'?!p.categoryId:(p.categoryId||p.family)===family))&&(!q||[p.name,p.reference,p.categoryName,p.tagline,p.size,...Object.values(p.attributes||{}),...(p.variants||[]).flatMap(v=>[v.label,v.reference])].join(' ').toLowerCase().includes(q)));
   }, [products, query, family]);
   const scroll = (dir) => track.current.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' });
 

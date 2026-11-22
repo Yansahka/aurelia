@@ -16,7 +16,7 @@ export default function NewArrival() {
         <Reveal className="im"><img src={productImage(p)} alt={p.name} loading="lazy" onError={e=>{e.currentTarget.src=productPlaceholder;}}/></Reveal>
         <Reveal>
           <h2><RichText text={newArrival.title} /></h2><p>{newArrival.text}</p><a className="product-more" href={productPath(p)}>Voir {p.name}</a>
-          <button className="btn dk" disabled={p.stock===0} onClick={() => add(p.id)}>{p.stock===0?'Épuisé':`Ajouter · ${money(p.price)}`}</button>
+          {p.hasVariants&&p.stock>0?<a className="btn dk" href={productPath(p)}>Choisir les options</a>:<button className="btn dk" disabled={p.stock===0} onClick={() => add(p.id)}>{p.stock===0?'Épuisé':`Ajouter · ${money(p.price)}`}</button>}
         </Reveal>
       </div>
     </section>

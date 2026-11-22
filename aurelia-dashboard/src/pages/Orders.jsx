@@ -32,7 +32,7 @@ function Detail({ order, store, onClose, onMove, draft, onDraft }) {
         <div className="chips">{STAGES.map((s) => <button key={s.key} className={'chip' + (order.status === s.key ? ' on' : '')} onClick={() => order.status !== s.key && onMove(order.id, s.key, order.status)}>{s.label}</button>)}</div>
         <div className="list-r" style={{ borderBottom: 0 }}><Avatar name={order.customerName} size={36} /><span className="g">{order.customerName}<small>+{order.phone} · {dateShort(order.createdAt)} · {order.source === 'cart' ? 'panier' : 'fiche produit'}</small></span></div>
         <table className="tbl"><tbody>
-          {order.items.map((i) => <tr key={i.id}><td>{i.name}</td><td className="r muted">{i.qty} × {m(i.unitPrice)}</td><td className="r num">{m(i.qty * i.unitPrice)}</td></tr>)}
+          {order.items.map((i) => <tr key={i.id}><td>{i.name}{i.variantLabel&&<small style={{display:'block'}}>{i.variantLabel}</small>}{i.variantReference&&<small className="muted">Réf. {i.variantReference}</small>}</td><td className="r muted">{i.qty} × {m(i.unitPrice)}</td><td className="r num">{m(i.qty * i.unitPrice)}</td></tr>)}
           <tr><td><b style={{ fontWeight: 500 }}>Total</b></td><td /><td className="r num"><b>{m(order.total)}</b></td></tr>
         </tbody></table>
         <form className="notes-editor" onSubmit={save}>

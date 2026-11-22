@@ -9,6 +9,7 @@ import { row, loadData, publicHome } from './data.js';
 import { overview, report, enrich } from './stats.js';
 import { catalogueProducts, productExtras, saveExtras, categoryRoutes } from './catalogue.js';
 import { color, imageUrl, validateBranding } from './branding.js';
+import { prepareVariants, saveVariants, variantSummary } from './variants.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const uuid = id => { if (!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id)) fail(404, 'Élément introuvable.'); return id; };
@@ -132,17 +133,21 @@ export function createApp(pool, options = {}) {
   }
   app.post('/v1/products',async(req,res)=>res.status(201).json(await tenant(req,async(c,s)=>{
     const extras=await productExtras(c,s.id,req.body||{});
-    const values=productData(req.body||{}); const productSlug=randomUUID();
+    const variantData=prepareVariants(req.body||{});
+    const values=productData({...req.body,...(variantData.hasVariants?variantSummary(variantData.variants):{})}); const productSlug=randomUUID();
     const product=one(await c.query(`INSERT INTO products(name,tagline,price,old_price,size_label,note,family,badge,stock,is_active,is_featured,is_new,image_url,palette,store_id,slug) VALUES(${values.map((_,i)=>'$'+(i+1)).join(',')},$15,$16) RETURNING *`,[...values,s.id,productSlug]));
+    await saveVariants(c,s.id,product.id,variantData);
     return saveExtras(c,s.id,product.id,extras);
   })));
   app.patch('/v1/products/:id',async(req,res)=>res.json(await tenant(req,async(c,s)=>{
     const id=uuid(req.params.id);one(await c.query('SELECT id FROM products WHERE id=$1 AND store_id=$2 AND deleted_at IS NULL FOR UPDATE',[id,s.id]));
     const existing=(await catalogueProducts(c,s.id)).find(p=>p.id===id);
     const extras=await productExtras(c,s.id,req.body||{},existing);
-    const values=productData(req.body||{},existing);
+    const variantData=prepareVariants(req.body||{},existing);
+    const values=productData({...req.body,...(variantData.hasVariants?variantSummary(variantData.variants):{})},existing);
     const cols=['name','tagline','price','old_price','size_label','note','family','badge','stock','is_active','is_featured','is_new','image_url','palette'];
     await c.query(`UPDATE products SET ${cols.map((k,i)=>k+'=$'+(i+1)).join(',')} WHERE id=$15 AND store_id=$16`,[...values,id,s.id]);
+    await saveVariants(c,s.id,id,variantData);
     return saveExtras(c,s.id,id,extras);
   })));
   for(const [method,path,deleted] of [['delete','/v1/products/:id',true],['post','/v1/products/:id/restore',false]]) app[method](path,async(req,res)=>res.json(await tenant(req,async(c,s)=>one(await c.query(`UPDATE products SET deleted_at=${deleted?'now()':'NULL'} WHERE id=$1 AND store_id=$2 RETURNING id`,[uuid(req.params.id),s.id])))));
@@ -191,21 +196,25 @@ export function createApp(pool, options = {}) {
   app.post('/v1/public/stores/:slug/orders',async(req,res)=>res.status(201).json(await publicTenant(req,async(c,s)=>{
     const d=req.body||{}, customerName=text(d.customerName,'Votre nom',100), customerPhone=phone(d.phone);
     if(!Array.isArray(d.items)||!d.items.length||d.items.length>50)fail(400,'Panier invalide.');
-    const quantities=new Map();for(const i of d.items){const id=uuid(i.productId);quantities.set(id,(quantities.get(id)||0)+integer(i.qty,'Quantité',1,100));}
+    const quantities=new Map();for(const i of d.items){const id=uuid(i.productId),variantId=i.variantId==null?null:uuid(i.variantId),key=id+'|'+(variantId||'');const previous=quantities.get(key);quantities.set(key,{id,variantId,qty:(previous?.qty||0)+integer(i.qty,'Quantité',1,100)});}
     const lines=[];let total=0;
     // Ordre stable des verrous pour éviter les interblocages entre paniers.
-    for(const [id,qty] of [...quantities].sort(([a],[b])=>a.localeCompare(b))){
+    for(const {id,variantId,qty} of [...quantities.values()].sort((a,b)=>(a.id+'|'+(a.variantId||'')).localeCompare(b.id+'|'+(b.variantId||'')))){
       const p=one(await c.query('SELECT * FROM products WHERE id=$1 AND store_id=$2 AND is_active AND deleted_at IS NULL FOR UPDATE',[id,s.id]));
-      if(qty>100||p.stock<qty)fail(409,`Stock insuffisant pour ${p.name}.`);
-      total+=p.price*qty;lines.push({p,qty});
+      if(p.hasVariants&&!variantId)fail(400,`Choisissez une variante pour ${p.name}.`);
+      if(!p.hasVariants&&variantId)fail(400,'Cette variante n’est plus proposee pour ce produit.');
+      const v=variantId?one(await c.query('SELECT * FROM product_variants WHERE id=$1 AND product_id=$2 AND store_id=$3 AND is_active AND archived_at IS NULL FOR UPDATE',[variantId,p.id,s.id])):null;
+      const stock=v?v.stock:p.stock,price=v?v.price:p.price;
+      if(qty>100||stock<qty)fail(409,`Stock insuffisant pour ${p.name}${v?' — '+v.label:''}.`);
+      total+=price*qty;lines.push({p,v,qty});
     }
     integer(total,'Total',1,100000000000);
     const customer=one(await c.query('INSERT INTO customers(store_id,name,phone) VALUES($1,$2,$3) ON CONFLICT(store_id,phone) DO UPDATE SET name=EXCLUDED.name RETURNING *',[s.id,customerName,customerPhone]));
     const code='AU-'+randomUUID().slice(0,8).toUpperCase();
     const order=one(await c.query('INSERT INTO orders(store_id,customer_id,code,total) VALUES($1,$2,$3,$4) RETURNING *',[s.id,customer.id,code,total]));
-    for(const {p,qty} of lines) await c.query('INSERT INTO order_items(order_id,product_id,name_snapshot,unit_price,qty) VALUES($1,$2,$3,$4,$5)',[order.id,p.id,p.name,p.price,qty]);
+    for(const {p,v,qty} of lines) await c.query('INSERT INTO order_items(order_id,product_id,name_snapshot,unit_price,qty,variant_id,variant_label,variant_reference,variant_options) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb)',[order.id,p.id,p.name,v?v.price:p.price,qty,v?.id||null,v?.label||'',v?.reference||'',JSON.stringify(v?.options||{})]);
     // Une demande WhatsApp est un lead, pas un paiement : pas de décrémentation automatique du stock.
-    return {code,total};
+    return {code,total,items:lines.map(({p,v,qty})=>({productId:p.id,variantId:v?.id||null,name:p.name,size:p.size,variantLabel:v?.label||'',reference:v?.reference||p.reference||'',unitPrice:v?v.price:p.price,qty}))};
   })));
   app.post('/v1/public/stores/:slug/newsletter',async(req,res)=>{
     await publicTenant(req,async(c,s)=>c.query('INSERT INTO newsletter_subscribers(store_id,email) VALUES($1,$2) ON CONFLICT DO NOTHING',[s.id,email(req.body?.email)]));res.sendStatus(204);
@@ -230,7 +239,7 @@ export function createApp(pool, options = {}) {
     const conflict=err.code==='23505'||err.code==='23503', bad=err.code==='22P02'||err.code==='23514';
     const status=err.status || (conflict?409:bad?400:500);
     if(status>=500 && !options.quiet)console.error('Erreur API :',err.code||err.name);
-    const duplicate=err.constraint==='categories_name_ci'?'Cette categorie existe deja.':err.constraint==='products_reference_ci'?'Cette reference produit existe deja.':err.code==='23503'?'Cet element est encore utilise.':'Cette adresse e-mail ou cette adresse de boutique est déjà utilisée.';
+    const duplicate=err.constraint==='categories_name_ci'?'Cette categorie existe deja.':['products_reference_ci','variants_reference_uq'].includes(err.constraint)?'Cette reference existe deja.':err.constraint==='variants_combination_uq'?'Cette combinaison existe deja.':err.code==='23503'?'Cet element est encore utilise.':'Cette adresse e-mail ou cette adresse de boutique est déjà utilisée.';
     res.status(status).json({error:{message:conflict?duplicate:bad?'Informations invalides.':status>=500?'Service momentanément indisponible. Réessayez.':err.message}});
   });
   return app;

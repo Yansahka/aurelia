@@ -32,7 +32,7 @@ export default function Products({ route }) {
   }, [products]);
   const list = useMemo(() => (products || []).filter((p) =>
     (tab === 'all' || (tab === 'active' && p.isActive) || (tab === 'draft' && !p.isActive) || (tab === 'out' && p.stock === 0)) &&
-    (!fam || (fam==='uncategorized'?!p.categoryId:p.categoryId===fam)) && (!q || [p.name,p.reference,p.categoryName,p.tagline,p.size,...Object.values(p.attributes||{})].join(' ').toLowerCase().includes(q.toLowerCase()))), [products, tab, fam, q]);
+    (!fam || (fam==='uncategorized'?!p.categoryId:p.categoryId===fam)) && (!q || [p.name,p.reference,p.categoryName,p.tagline,p.size,...Object.values(p.attributes||{}),...(p.variants||[]).flatMap(v=>[v.label,v.reference])].join(' ').toLowerCase().includes(q.toLowerCase()))), [products, tab, fam, q]);
 
   if (productsQuery.error || storeQuery.error || categoriesQuery.error) return <QueryError message={(productsQuery.error || storeQuery.error || categoriesQuery.error).message} onRetry={() => { productsQuery.refetch(); storeQuery.refetch();categoriesQuery.refetch(); }} />;
   if (!products || !store || !categoriesQuery.data) return <Skeleton h={320} />;
@@ -63,7 +63,7 @@ export default function Products({ route }) {
       <div className="product-cards">
         {list.map(p => <article className="card product-mobile" key={p.id}>
           <div className="product-mobile-head"><Thumb product={p} /><div><h2>{p.name}</h2><p>{p.categoryName||'Sans catégorie'} {p.size&&' · '+p.size}</p>{p.reference&&<small>Réf. {p.reference}</small>}</div></div>
-          <div className="product-mobile-info"><strong className="num">{money(p.price, cur)}</strong><span className={p.stock === 0 ? 'stock-empty' : ''}>{p.stock === 0 ? 'En rupture' : p.stock + ' en stock'}</span></div>
+          <div className="product-mobile-info"><strong className="num">{p.hasVariants?'À partir de ':''}{money(p.price, cur)}</strong><span className={p.stock === 0 ? 'stock-empty' : ''}>{p.stock === 0 ? 'En rupture' : p.stock + ' en stock'}{p.hasVariants&&' · '+p.variants.length+' variantes'}</span></div>
           <div className="product-mobile-visibility"><span>Visible dans la boutique</span><Switch on={p.isActive} onChange={v => toggle(p, v)} label={'Visible : ' + p.name} /></div>
           <div className="product-mobile-actions"><button className="btn" onClick={() => openProductForm(p.id)}>Modifier</button><button className="btn" onClick={() => share(p)} aria-label={'Partager ' + p.name}>Partager</button><button className="btn danger" disabled={pending === p.id} onClick={() => remove(p)}>Supprimer</button></div>
         </article>)}
@@ -77,7 +77,7 @@ export default function Products({ route }) {
               <tr key={p.id}>
                 <td><div className="cell"><Thumb product={p} /><div><b style={{ fontWeight: 500 }}>{p.name}</b> {p.badge && <span className="pill">{p.badge}</span>}<small>{[p.reference,p.size].filter(Boolean).join(' · ')}</small></div></div></td>
                 <td>{p.categoryName||'Sans catégorie'}</td>
-                <td className="r num">{money(p.price, cur)}{p.oldPrice && <small className="muted" style={{ display: 'block', textDecoration: 'line-through' }}>{money(p.oldPrice, cur)}</small>}</td>
+                <td className="r num">{p.hasVariants&&<small style={{display:'block'}}>À partir de · {p.variants.length} variantes</small>}{money(p.price, cur)}{p.oldPrice && <small className="muted" style={{ display: 'block', textDecoration: 'line-through' }}>{money(p.oldPrice, cur)}</small>}</td>
                 <td className="r num" style={{ color: p.stock === 0 ? 'var(--red)' : p.stock <= 3 ? 'var(--amber)' : undefined }}>{p.stock === 0 ? 'Rupture' : p.stock}</td>
                 <td><Switch on={p.isActive} onChange={(v) => toggle(p, v)} label={'Visible : ' + p.name} /></td>
                 <td className="r" style={{ whiteSpace: 'nowrap' }}>

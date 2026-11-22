@@ -7,14 +7,17 @@ import { BADGES } from '../lib/constants';
 import { productImage } from '../lib/art';
 import { Switch } from './ui/Bits';
 import Modal from './ui/Modal';
+import VariantEditor from './VariantEditor';
+import { variantSummary } from '../../../shared/variants.js';
 
-const DEFAULTS={name:'',tagline:'',description:'',reference:'',price:'',oldPrice:'',stock:'0',size:'',categoryId:'',badge:'',isActive:true,isFeatured:false,isNew:false};
+const DEFAULTS={name:'',tagline:'',description:'',reference:'',price:'',oldPrice:'',stock:'0',size:'',categoryId:'',badge:'',isActive:true,isFeatured:false,isNew:false,hasVariants:false};
 function Form({ product, onClose }) {
  const toast=useToast();
  const categoriesQuery=useQuery('categories',api.categories.list);
  const [f,setF]=useState(()=>({...DEFAULTS,...product,price:product?String(product.price):'',oldPrice:product?.oldPrice?String(product.oldPrice):'',stock:String(product?.stock??0),categoryId:product?.categoryId||'',badge:product?.badge||''}));
  const [photos,setPhotos]=useState(()=>product?.images?.length?product.images:product?.image?[product.image]:[]);
  const [attributes,setAttributes]=useState(()=>Object.entries(product?.attributes||{}));
+ const [variantOptions,setVariantOptions]=useState(product?.variantOptions||[]),[variants,setVariants]=useState(product?.variants||[]),[variantDirty,setVariantDirty]=useState(false);
  const [newCategory,setNewCategory]=useState(''),[categoryBusy,setCategoryBusy]=useState(false);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false);
  const set=(key,value)=>setF(prev=>({...prev,[key]:value}));
@@ -25,10 +28,13 @@ function Form({ product, onClose }) {
  const submit=async e=>{
   e.preventDefault();setError('');
   const price=Number(f.price),stock=Number(f.stock),oldPrice=f.oldPrice===''?null:Number(f.oldPrice);
-  if(!f.name.trim()||!Number.isInteger(price)||price<=0||!Number.isInteger(stock)||stock<0||oldPrice!==null&&(!Number.isInteger(oldPrice)||oldPrice<=price)){setError('Vérifiez le nom, le prix, le stock et le prix promotionnel.');return;}
+  if(!f.name.trim()||!f.hasVariants&&(!Number.isInteger(price)||price<=0||!Number.isInteger(stock)||stock<0||oldPrice!==null&&(!Number.isInteger(oldPrice)||oldPrice<=price))){setError('Vérifiez le nom, le prix, le stock et le prix promotionnel.');return;}
+  const rows=variants.map(v=>({...v,price:Number(v.price),stock:Number(v.stock),oldPrice:v.oldPrice==null||v.oldPrice===''?null:Number(v.oldPrice)}));
+  if(f.hasVariants&&(variantDirty||!rows.length||rows.some(v=>!Number.isInteger(v.price)||v.price<=0||!Number.isInteger(v.stock)||v.stock<0||v.oldPrice!==null&&(!Number.isInteger(v.oldPrice)||v.oldPrice<=v.price)))){setError('Générez les variantes et vérifiez leurs prix et stocks.');return;}
   const keys=attributes.map(([key])=>key.trim());
   if(new Set(keys).size!==keys.length||attributes.some(([key,value])=>!key.trim()||!value.trim())){setError('Chaque caractéristique doit avoir un nom unique et une valeur.');return;}
   const data={name:f.name.trim(),tagline:f.tagline,description:f.description,reference:f.reference,size:f.size,price,stock,oldPrice,categoryId:f.categoryId||null,badge:f.badge,isActive:f.isActive,isFeatured:f.isFeatured,isNew:f.isNew,images:photos.map(url=>url.trim()),attributes:Object.fromEntries(attributes.map(([key,value])=>[key.trim(),value.trim()]))};
+  Object.assign(data,{hasVariants:f.hasVariants,variantOptions:f.hasVariants?variantOptions:[],variants:f.hasVariants?rows:[]},f.hasVariants?variantSummary(rows):{});
   setBusy(true);try{
    product?await api.products.update(product.id,data):await api.products.create(data);
    invalidate('products','stats','categories');toast(product?'Produit mis à jour':'Produit ajouté');onClose();
@@ -39,11 +45,13 @@ function Form({ product, onClose }) {
   <div className="product-form-heading"><span className="thumb" style={{width:62,height:72}}><img src={productImage({...f,image:photos[0]})} alt=""/></span><label className="field">Nom du produit *<input {...field('name')} required maxLength={150} autoFocus/></label></div>
   <label className="field">Description courte<input {...field('tagline')} maxLength={500} placeholder="L’essentiel de votre produit en une phrase"/></label>
   <label className="field">Description détaillée<textarea {...field('description')} maxLength={5000} placeholder="Utilisation, composition, contenu du colis…"/></label>
-  <div className="grid3">
+  <div className="product-setting">Ce produit a des variantes<Switch on={f.hasVariants} onChange={value=>set('hasVariants',value)} label="Ce produit a des variantes"/></div>
+  {!f.hasVariants&&product?.hasVariants&&<p className="action-error" role="alert">Les variantes seront archivées à l’enregistrement. Les anciennes commandes seront conservées.</p>}
+  {f.hasVariants?<VariantEditor options={variantOptions} variants={variants} basePrice={f.price} onDirty={setVariantDirty} onChange={(options,rows)=>{setVariantOptions(options);setVariants(rows);}}/>:<div className="grid3">
    <label className="field">Prix (FCFA) *<input {...field('price')} inputMode="numeric" required/></label>
    <label className="field">Ancien prix<input {...field('oldPrice')} inputMode="numeric" placeholder="Facultatif"/></label>
    <label className="field">Stock<input {...field('stock')} inputMode="numeric" required/></label>
-  </div>
+  </div>}
   <div className="grid2"><label className="field">Référence<input {...field('reference')} maxLength={80} placeholder="Ex. TSH-001 (facultatif)"/></label><label className="field">Format / dimensions<input {...field('size')} maxLength={80} placeholder="Ex. 500 g, 30 × 20 cm, unité"/></label></div>
   <label className="field">Catégorie<select {...field('categoryId')} disabled={!categoriesQuery.data}><option value="">Sans catégorie</option>{categoriesQuery.data?.map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
   {categoriesQuery.error&&<p role="alert">{categoriesQuery.error.message}<button type="button" className="btn" onClick={categoriesQuery.refetch}>Réessayer</button></p>}
@@ -59,7 +67,7 @@ function Form({ product, onClose }) {
   <label className="field">Étiquette<select {...field('badge')}><option value="">Aucune</option>{BADGES.map(b=><option key={b}>{b}</option>)}</select></label>
   {[['isActive','Visible dans la boutique'],['isFeatured','Mettre en avant'],['isNew','Afficher comme nouveauté']].map(([key,label])=><div className="product-setting" key={key}>{label}<Switch on={f[key]} onChange={value=>set(key,value)} label={label}/></div>)}
   {error&&<p className="action-error" role="alert">{error}</p>}
-  <div className="acts"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn lime" disabled={busy||categoryBusy}>{busy?'Enregistrement…':product?'Enregistrer':'Ajouter le produit'}</button></div>
+  <div className="acts"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn lime" disabled={busy||categoryBusy||f.hasVariants&&variantDirty}>{busy?'Enregistrement…':product?'Enregistrer':'Ajouter le produit'}</button></div>
  </form>;
 }
 export default function ProductFormModal(){

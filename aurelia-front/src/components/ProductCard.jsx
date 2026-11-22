@@ -24,8 +24,8 @@ export default function ProductCard({ product: p }) {
       <div className="pt">{p.tagline}</div>
       <a className="product-more" href={productPath(p)}>Voir le produit</a>
       <div className="pf">
-        <span className="pr">{money(p.price)}{p.oldPrice && <s>{money(p.oldPrice)}</s>}</span>
-        <button className="add" disabled={p.stock === 0} onClick={() => add(p.id)}>{p.stock === 0 ? 'Épuisé' : '+ Panier'}</button>
+        <span className="pr">{p.hasVariants&&<small style={{display:'block'}}>À partir de</small>}{money(p.price)}{p.oldPrice && <s>{money(p.oldPrice)}</s>}</span>
+        {p.hasVariants&&p.stock>0?<a className="add" href={productPath(p)}>Choisir</a>:<button className="add" disabled={p.stock === 0} onClick={() => add(p.id)}>{p.stock === 0 ? 'Épuisé' : '+ Panier'}</button>}
       </div>
     </article>
   );

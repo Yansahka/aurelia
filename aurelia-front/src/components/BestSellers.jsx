@@ -17,7 +17,7 @@ export default function BestSellers() {
             <a className="bc" key={p.id} href={productPath(p)}>
               <img src={productImage(p)} alt={p.name} loading="lazy" onError={e=>{e.currentTarget.src=productPlaceholder;}}/>
               <div><b>{p.name}</b><small>{[p.categoryName,p.size].filter(Boolean).join(' · ')}</small></div>
-              <div><b>{money(p.price)}</b></div>
+              <div><b>{p.hasVariants?'À partir de ':''}{money(p.price)}</b></div>
             </a>
           ))}
         </div>
