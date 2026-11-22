@@ -1,0 +1,7 @@
+/* footer */
+.ft{margin-top:110px;background:var(--plum);color:#f6efe5;border-radius:26px 26px 0 0;padding:clamp(24px,4vw,56px) clamp(20px,5vw,64px) 24px;overflow:hidden}
+.fg{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}.ft h3{font:400 clamp(22px,2.6vw,32px) var(--sans);letter-spacing:-.02em}
+.nl{display:flex;gap:8px;margin-top:16px}.nl input{padding:9px 14px;border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;width:210px;outline:0}
+.cols{display:flex;gap:44px;font-size:12px}.cols h4{font:italic 400 17px var(--serif);color:#d9b99c;margin-bottom:10px}.cols a{display:block;opacity:.8;margin-bottom:6px}.cols a:hover{opacity:1}
+.wm{font:italic clamp(90px,24vw,320px)/.95 var(--serif);text-align:center;margin-top:30px;letter-spacing:-.02em}
+.fb{display:flex;justify-content:space-between;font-size:11px;opacity:.6;margin-top:10px}

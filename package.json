@@ -1,0 +1,16 @@
+{
+  "name": "aurelia", "private": true, "type": "module",
+  "scripts": {
+    "dev": "node server/index.js", "start": "node server/index.js",
+    "dev:local": "node server/index.js",
+    "dev:embedded": "node server/local.js",
+    "db:setup-local": "node server/setup-postgres.js",
+    "test:postgres": "node server/check-postgres.js",
+    "db:migrate": "node server/migrate.js",
+    "build": "npm --prefix aurelia-front run build && npm --prefix aurelia-dashboard run build",
+    "test": "node --test server/test/*.test.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": { "express": "^5.1.0", "pg": "^8.16.3", "helmet": "^8.1.0", "express-rate-limit": "^8.2.1", "dotenv": "^17.2.3" },
+  "devDependencies": { "@electric-sql/pglite": "^0.3.14" }
+}

@@ -1,0 +1,4 @@
+/* rituals */
+.rt{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.rc{position:relative;aspect-ratio:3/4.3;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:22px 10px;color:#fff;text-align:center;font-size:13px}
+.rc::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(20,8,12,.55))}.rc>*{position:relative;z-index:1}.rc .bg{position:absolute;inset:0;z-index:0;transition:transform .9s var(--ease)}.rc:hover .bg{transform:scale(1.08)}
+.rc em{font-size:24px;display:block}.rc .btn{margin-top:10px;padding:6px 14px;font-size:11px}

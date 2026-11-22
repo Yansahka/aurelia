@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-11-22T17:28:37.298Z",
+  "server": {
+    "database": "aurelia_db",
+    "version": "PostgreSQL 18.7 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit",
+    "rolsuper": false,
+    "rolbypassrls": false
+  },
+  "store": {
+    "id": "3672c368-e23a-42d4-8395-ffa505170317",
+    "name": "Maison PostgreSQL",
+    "slug": "maison-postgres-2211"
+  },
+  "products": [
+    {
+      "id": "a067e102-c9e3-4bc5-a537-6fbee0adcfa4",
+      "name": "Néroli PostgreSQL",
+      "price": "25000",
+      "stock": 10
+    }
+  ],
+  "health": {
+    "status": "ok"
+  },
+  "persistedAfterApiRestart": true
+}

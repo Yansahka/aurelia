@@ -1,0 +1,35 @@
+
+> test
+> node --test server/test/*.test.js
+
+✔ La période inclut sa borne de début et exclut la borne de fin pour tous les regroupements (87.1406ms)
+✔ Les mesures non additives utilisent aussi la période commune (14.5211ms)
+✔ Le CSV garde le montant exact, la devise et le mois avec son année (3.3128ms)
+✔ Le CSV conserve les noms des produits et les valeurs des ratios sans abréviation (0.4317ms)
+✔ Une date de relance absente ou invalide ne devient pas une date de 1970 (0.9495ms)
+✔ Les commandes sans relance planifiée restent absentes du bloc des échéances (5.4749ms)
+▶ Sécurité du stockage embarqué local
+  ✔ Une seconde ouverture du serveur est refusée par le verrou (34.5003ms)
+  ✔ Une écriture validée survit à un arrêt brutal du processus de test (33188.8568ms)
+✔ Sécurité du stockage embarqué local (33531.8109ms)
+▶ Parcours SaaS et isolation sur PostgreSQL embarqué (RLS active)
+  ✔ Inscription atomique, session HttpOnly, dashboard vide (2446.8102ms)
+  ✔ Validation, doublons et rollback sans utilisateur orphelin (657.4772ms)
+  ✔ Routes privées et origine des mutations (155.2612ms)
+  ✔ Catalogues indépendants et IDOR refusées (374.9183ms)
+  ✔ RLS limite aussi une requête SQL sans filtre du serveur (17.6625ms)
+  ✔ Boutique publique sans données privées ni avis inventés (189.1465ms)
+  ✔ Commande : prix serveur, coordonnées, stock et produits du bon vendeur (491.5312ms)
+  ✔ Réglages, nouveau lien, suppression douce et restauration (230.4026ms)
+  ✔ Newsletter et événements : aucune référence inter-boutique (68.9479ms)
+  ✔ Connexion après inscription et révocation réelle de session (239.7669ms)
+  ✔ Rapports : même période et montants exacts entre regroupements (575.9076ms)
+✔ Parcours SaaS et isolation sur PostgreSQL embarqué (RLS active) (11007.0362ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34146.6284

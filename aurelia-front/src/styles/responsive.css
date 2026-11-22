@@ -1,0 +1,2 @@
+@media(max-width:820px){.nav ul,.srch{display:none}.nav{grid-template-columns:1fr auto}.nav .logo{order:-1}.rt{grid-template-columns:repeat(2,1fr)}.bs,.na{grid-template-columns:1fr}.bs .l{position:static}.rb{grid-template-columns:1fr;padding-left:0}.rb>div:first-child{padding:0 22px}.hero .art{width:100%;opacity:.6}.glass{display:none}.cols{gap:26px}.arr{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}.mq{animation:none}}

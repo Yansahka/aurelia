@@ -1,0 +1,37 @@
+/* graphiques */
+.chart .plot{position:relative;display:flex;gap:8px;align-items:stretch}
+.chart .col{flex:1;position:relative;border-radius:8px;background:var(--track);display:flex;align-items:flex-end;min-width:0}
+.chart .bar{width:100%;border-radius:8px;background:var(--blue);transition:height .9s cubic-bezier(.2,.8,.2,1);min-height:3px}
+.chart .bar.hi{background:var(--lime)}.chart .col:hover .bar{filter:brightness(1.15)}
+.chart .tgt{position:absolute;left:0;right:0;border-top:1px dashed var(--mut);opacity:.7;pointer-events:none;z-index:2}
+.chart .labels{display:flex;gap:8px;margin-top:7px}.chart .labels span{flex:1;text-align:center;font-size:10px;color:var(--mut)}
+.chart .chart-value{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden}
+.legend{display:flex;gap:12px;font-size:11px;color:var(--mut)}.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:baseline}
+.hbar{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;font-size:12px;margin-bottom:11px}
+.hbar small{display:block;color:var(--mut);font-size:10px}.hbar .tr{height:7px;border-radius:7px;background:var(--track);overflow:hidden}.hbar .fl{height:100%;border-radius:7px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.prog{height:6px;border-radius:6px;background:rgba(255,255,255,.18);overflow:hidden;margin:10px 0 6px}.prog i{display:block;height:100%;background:#fff;border-radius:6px;transition:width .9s}
+[data-theme=light] .prog{background:rgba(0,0,0,.1)}[data-theme=light] .prog i{background:var(--ink)}
+/* modal & toast */
+.modal-wrap{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);animation:fd .25s}
+.modal{width:min(560px,100%);max-height:92vh;overflow:auto;background:rgba(26,30,37,.96);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow);animation:pop .35s cubic-bezier(.2,.8,.2,1)}
+[data-theme=light] .modal{background:rgba(250,251,250,.98)}
+.modal.wide{width:min(660px,100%)}.modal h2{font-size:18px;font-weight:500;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.stack{display:flex;flex-direction:column;gap:12px}
+@keyframes fd{from{opacity:0}}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:200;background:#f6f3ec;color:#151515;padding:8px 8px 8px 16px;border-radius:99px;font-size:12.5px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);animation:tin .4s cubic-bezier(.2,.8,.2,1);max-width:92vw}
+.toast button{background:var(--lime);color:var(--lime-ink);padding:5px 12px;border-radius:99px;font-size:12px;font-weight:500}
+@keyframes tin{from{opacity:0;transform:translate(-50%,16px)}}
+/* tableau */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-weight:400;color:var(--mut);font-size:11px;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}.tbl tr:last-child td{border-bottom:0}.tbl tbody tr:hover td{background:var(--glass)}
+.tbl .r{text-align:right}.tbl .cell{display:flex;align-items:center;gap:11px;min-width:0}.tbl .cell small{display:block;color:var(--mut);font-size:11px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scroll-x{overflow-x:auto}
+.tabs{display:inline-flex;padding:3px;border-radius:99px;background:var(--glass);border:1px solid var(--line);gap:2px}
+.tabs button{padding:6px 14px;border-radius:99px;font-size:12px;color:var(--mut)}.tabs button.on{background:var(--ink);color:var(--bg)}
+.empty{padding:34px;text-align:center;color:var(--mut);font-size:13px}
+.skeleton{height:120px;border-radius:var(--r);background:linear-gradient(90deg,var(--glass),var(--glass2),var(--glass));background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.stars{color:var(--amber);letter-spacing:1px;font-size:12px}
+.copyrow{display:flex;gap:8px}.copyrow input{flex:1;min-width:0;padding:9px 12px;border-radius:11px;background:var(--glass);border:1px solid var(--line);font-size:13px}
+.chart .labels span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

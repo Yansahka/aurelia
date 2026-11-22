@@ -1,0 +1,5 @@
+/* best sellers */
+.bs{display:grid;grid-template-columns:1fr 1.25fr;gap:40px;align-items:start}.bs .l{position:sticky;top:130px}.bs .l p{margin:14px 0 20px;max-width:300px;font-size:13px;color:var(--mut)}
+.bc{position:sticky;top:110px;height:min(440px,62vh);border-radius:22px;margin-bottom:26px;overflow:hidden;color:#fff;display:flex;align-items:flex-end;padding:20px;justify-content:space-between}
+.bc img{position:absolute;inset:0}.bc div{position:relative;z-index:1}.bc::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(20,8,12,.6))}.bc b{font-size:17px}.bc small{display:block;opacity:.85}
+.na{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,6vw,80px);align-items:center}.na .im{aspect-ratio:1;border-radius:22px;overflow:hidden}.na p{margin:12px 0 20px;max-width:340px;font-size:13px;color:var(--mut)}

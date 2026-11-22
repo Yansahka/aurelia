@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Changement de statut et date de livraison",
+    "passed": true,
+    "details": {
+      "status": 200
+    }
+  },
+  {
+    "name": "Cohérence du total avec les 12 mois affichés",
+    "passed": true,
+    "details": {
+      "total": 50000,
+      "sommeDesLignes": 50000,
+      "venteAncienne": 25000
+    }
+  },
+  {
+    "name": "Période cohérente entre mois et produit",
+    "passed": true,
+    "details": {
+      "totalGroupeProduit": 50000,
+      "totalDouzeMois": 50000
+    }
+  },
+  {
+    "name": "Avis non publié absent du public",
+    "passed": true,
+    "details": {
+      "count": 0
+    }
+  },
+  {
+    "name": "Publication des avis",
+    "passed": true,
+    "details": {
+      "count": 1,
+      "rating": 5
+    }
+  },
+  {
+    "name": "Bascule de tâche",
+    "passed": true,
+    "details": {
+      "done": true
+    }
+  },
+  {
+    "name": "Validation serveur des notes trop longues",
+    "passed": true,
+    "details": {
+      "status": 400,
+      "message": "Notes invalide."
+    }
+  },
+  {
+    "name": "RLS sur toutes les tables métier",
+    "passed": true,
+    "details": {
+      "products": 0,
+      "customers": 0,
+      "orders": 0,
+      "order_items": 0,
+      "reviews": 0,
+      "tasks": 0,
+      "events": 0,
+      "newsletter_subscribers": 0
+    }
+  },
+  {
+    "name": "Stock négatif refusé",
+    "passed": true,
+    "details": {
+      "status": 400
+    }
+  },
+  {
+    "name": "Rapport invalide refusé proprement",
+    "passed": true,
+    "details": {
+      "status": 400
+    }
+  },
+  {
+    "name": "Suppression identique au bouton du navigateur (sans corps)",
+    "passed": true,
+    "details": {
+      "status": 200
+    }
+  },
+  {
+    "name": "Suppression avec corps JSON explicite",
+    "passed": true,
+    "details": {
+      "status": 200
+    }
+  },
+  {
+    "name": "Restauration sans corps",
+    "passed": true,
+    "details": {
+      "status": 200
+    }
+  },
+  {
+    "name": "Date de relance absente sans ancienneté inventée",
+    "passed": true,
+    "details": {
+      "valeur": "Non planifiée"
+    }
+  }
+]

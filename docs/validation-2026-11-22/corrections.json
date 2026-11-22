@@ -1,0 +1,98 @@
+[
+  {
+    "id": "A01",
+    "title": "Suppression et annulation",
+    "status": "validated",
+    "result": "Suppression depuis le navigateur réussie, message de confirmation puis restauration du produit avec Annuler."
+  },
+  {
+    "id": "A02",
+    "title": "Période des rapports",
+    "status": "validated",
+    "result": "Les ventes anciennes sont exclues du total et des regroupements : 50 000 FCFA au lieu de 75 000 FCFA dans le scénario de régression."
+  },
+  {
+    "id": "A03",
+    "title": "CSV exact",
+    "status": "validated",
+    "result": "Le fichier réellement téléchargé contient 269500, FCFA et le mois 2026-11. Les valeurs compactes restent limitées aux graphiques et cartes."
+  },
+  {
+    "id": "A04",
+    "title": "Barre supérieure mobile",
+    "status": "validated",
+    "result": "Aucun débordement de la barre à 320 et 390 px ; la déconnexion est accessible dans le menu mobile."
+  },
+  {
+    "id": "A05",
+    "title": "Connexion sur petit écran",
+    "status": "validated",
+    "result": "À 320 × 568 px, le bouton est visible et le formulaire défile : le lien de création de compte peut aussi être atteint."
+  },
+  {
+    "id": "A06",
+    "title": "Menu réduit",
+    "status": "validated",
+    "result": "Le bouton de réouverture de 44 px reste dans la barre de 88 px ; réduction et réouverture testées à la souris."
+  },
+  {
+    "id": "A07",
+    "title": "Recherche",
+    "status": "validated",
+    "result": "Les suggestions sont verticales, restent dans leur panneau et sont activables avec Entrée. Une sélection réinitialise les filtres du catalogue."
+  },
+  {
+    "id": "A08",
+    "title": "Notes internes",
+    "status": "validated",
+    "result": "Compteur, limite de 5 000 caractères, erreur visible, brouillon conservé à la réouverture et sauvegarde explicite confirmée."
+  },
+  {
+    "id": "A09",
+    "title": "Navigation clavier",
+    "status": "validated",
+    "result": "Tab et Maj+Tab restent dans la modale, le focus est visible et Échap restitue le focus au bouton déclencheur."
+  },
+  {
+    "id": "A10",
+    "title": "Récupération après erreur",
+    "status": "validated",
+    "result": "Un rapport invalide affiche une erreur contextualisée sans squelette permanent ; la page Parfums retrouve ses cinq lignes sans alerte résiduelle."
+  },
+  {
+    "id": "A11",
+    "title": "Produits sur mobile",
+    "status": "validated",
+    "result": "Présentation en cartes : nom lisible, montant sur une ligne, stock et actions Modifier / Partager / Supprimer accessibles."
+  },
+  {
+    "id": "A12",
+    "title": "Lisibilité",
+    "status": "validated",
+    "result": "Tableaux à 15 px ; en-têtes, boutons et sous-titres à 14 px. Contrôles et espacements revus dans les deux thèmes."
+  },
+  {
+    "id": "A13",
+    "title": "Démarrage de boutique",
+    "status": "validated",
+    "result": "Avec un parfum et aucune commande, le dashboard propose Partager ma boutique et ne demande plus d’ajouter le premier parfum."
+  },
+  {
+    "id": "A14",
+    "title": "Nom de boutique long",
+    "status": "validated",
+    "result": "Nom tronqué avec points de suspension, titre de page conservé et recherche séparée sur tablette ; pas de superposition."
+  },
+  {
+    "id": "A15",
+    "title": "Avis vides",
+    "status": "validated",
+    "result": "Carte explicative Aucun avis pour le moment ; aucune moyenne 0.0/5 fictive."
+  },
+  {
+    "id": "A16",
+    "title": "Relances sans date",
+    "status": "validated",
+    "result": "Une date absente renvoie Non planifiée ; seules les échéances renseignées apparaissent dans À relancer bientôt."
+  }
+]
