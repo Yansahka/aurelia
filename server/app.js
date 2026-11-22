@@ -10,6 +10,7 @@ import { overview, report, enrich } from './stats.js';
 import { catalogueProducts, productExtras, saveExtras, categoryRoutes } from './catalogue.js';
 import { color, imageUrl, validateBranding } from './branding.js';
 import { prepareVariants, saveVariants, variantSummary } from './variants.js';
+import { mediaRoutes, validateImageReference } from './media.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const uuid = id => { if (!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id)) fail(404, 'Élément introuvable.'); return id; };
@@ -34,7 +35,8 @@ export function createApp(pool, options = {}) {
     // Les mutations avec cookie nécessitent une origine connue + JSON (protection CSRF).
     // Content-Type doit aussi être vérifié sur DELETE sans corps (req.is() renvoie alors null).
     const jsonContent = /^application\/json(?:\s*;|$)/i.test(req.get('Content-Type') || '');
-    if (!['GET','HEAD'].includes(req.method) && (!origin || !jsonContent)) return res.status(403).json({error:{message:'Requête JSON depuis une origine autorisée requise.'}});
+    const mediaContent=req.method==='POST'&&req.path==='/media'&&/^multipart\/form-data\s*;/i.test(req.get('Content-Type')||'');
+    if (!['GET','HEAD'].includes(req.method) && (!origin || !(jsonContent||mediaContent))) return res.status(403).json({error:{message:'Requête depuis une origine autorisée avec un format accepté requise.'}});
     next();
   });
   app.use(express.json({limit:'200kb'}));
@@ -71,6 +73,7 @@ export function createApp(pool, options = {}) {
   }
   app.get('/v1/health', async (req,res) => { await pool.query('SELECT 1'); res.json({status:'ok'}); });
   categoryRoutes(app,tenant);
+  mediaRoutes(app,tenant,options);
   app.post('/v1/auth/register',authLimiter,async(req,res)=>{
     const d=req.body || {}, address=email(d.email), name=text(d.name,'Nom',100), storeName=text(d.storeName,'Nom de boutique',100), storeSlug=slug(d.slug), whatsapp=phone(d.whatsapp);
     if (typeof d.password!=='string' || d.password.length<12 || d.password.length>128) fail(400,'Le mot de passe doit contenir de 12 à 128 caractères.');
@@ -102,6 +105,7 @@ export function createApp(pool, options = {}) {
     validateBranding(s,d);
     const fields={name:['name',v=>text(v,'Nom',100)],slug:['slug',slug],tagline:['tagline',v=>text(v,'Slogan',500,false)],whatsapp:['whatsapp_number',phone],whatsappMessage:['whatsapp_message',v=>text(v,'Message',1000,false)],shareMessage:['share_message',v=>text(v,'Message',1000,false)],monthlyTarget:['monthly_target',v=>integer(v,'Objectif')]};
     for(const [key,[column,check]] of Object.entries(fields)) if(own(d,key)) {values.push(check(d[key]));cols.push(`${column}=$${values.length}`);}
+    for(const key of ['logoUrl','coverUrl'])if(own(d,key))await validateImageReference(c,s.id,d[key]);
     const branding={logoUrl:['logo_url',imageUrl],coverUrl:['cover_url',imageUrl],accentColor:['accent_color',color],backgroundColor:['background_color',color],textColor:['text_color',color],heroTitle:['hero_title',v=>text(v,'Titre d’accueil',180,false)]};
     for(const [key,[column,check]] of Object.entries(branding))if(own(d,key)){values.push(check(d[key]));cols.push(`${column}=$${values.length}`);}
     if(!cols.length) fail(400,'Aucune information à enregistrer.');
@@ -126,7 +130,7 @@ export function createApp(pool, options = {}) {
     const oldPrice=p.oldPrice==null||p.oldPrice===''?null:integer(p.oldPrice,'Ancien prix',price+1);
     const string=(k,max=500)=>text(p[k]??'',k,max,false);
     const boolean=(k,def=false)=>{if(p[k]!==undefined && typeof p[k]!=='boolean') fail(400,k+' invalide.');return p[k]??def;};
-    const image=string('image',2000); if(image && !/^https:\/\//i.test(image)) fail(400,'Utilisez une URL d’image HTTPS.');
+    const image=imageUrl(string('image',2000));
     const palette=p.palette??['#c9a27a','#5b3a1e']; if(!Array.isArray(palette)||palette.length!==2||!palette.every(x=>/^#[0-9a-f]{6}$/i.test(x))) fail(400,'Couleurs invalides.');
     const family=string('family',30)||'autre';if(!['bois','fleurs','ambre','frais','autre'].includes(family)) fail(400,'Famille invalide.');
     return [name,string('tagline'),price,oldPrice,string('size',80),string('note',100),family,string('badge',80)||null,stock,boolean('isActive',true),boolean('isFeatured'),boolean('isNew'),image||null,palette];

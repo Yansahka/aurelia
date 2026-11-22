@@ -6,6 +6,7 @@ import { storeUrl } from '../config';
 import { useToast } from '../context/ToastContext';
 import { invalidate, useQuery } from '../hooks/useQuery';
 import { DEFAULT_BRANDING, brandStyle, contrast } from '../../../shared/branding.js';
+import ImagePicker from '../components/ImagePicker';
 
 const THEMES=[['Signature','#2b1620','#f6f0e7','#2a1520'],['Océan','#205a86','#f1f7fb','#152e40'],['Forêt','#285947','#f2f6ef','#20382e'],['Nuit','#d8b46b','#141b24','#edf1f5']];
 function BrandPreview({ store }) {
@@ -22,10 +23,13 @@ function Form({ store }) {
   const [f, setF] = useState({ ...DEFAULT_BRANDING,...store, monthlyTarget: String(store.monthlyTarget) });
   const [err, setErr] = useState({});
   const [busy, setBusy] = useState(false);
+  const [imageBusy,setImageBusy]=useState({});
+  const uploading=Object.values(imageBusy).some(Boolean);
   const bind = (k) => ({ value: f[k] ?? '', onChange: (e) => setF((s) => ({ ...s, [k]: e.target.value })) });
 
   const submit = async (e) => {
     e.preventDefault();
+    if(busy||uploading)return;
     const er = {}, phone = f.whatsapp.replace(/[\s+]/g, ''), target = Number(f.monthlyTarget);
     if (!f.name.trim()) er.name = 'Nom obligatoire';
     if (!/^[a-z0-9-]{3,40}$/.test(f.slug)) er.slug = '3 à 40 caractères : lettres minuscules, chiffres, tirets';
@@ -48,8 +52,8 @@ function Form({ store }) {
       <label className="field">Adresse (slug)<input {...bind('slug')} />{err.slug ? <small>{err.slug}</small> : <span>{storeUrl(f.slug || '…')}</span>}</label>
       <label className="field">Slogan<input {...bind('tagline')} /></label>
       <fieldset className="catalogue-section"><legend>Identité visuelle</legend><div className="stack">
-       <label className="field">Logo (URL HTTPS)<input {...bind('logoUrl')} type="url" maxLength={2000} placeholder="https://…/logo.png"/><span>Un logo carré et lisible, de préférence sur fond transparent.</span></label>
-       <label className="field">Couverture (URL HTTPS)<input {...bind('coverUrl')} type="url" maxLength={2000} placeholder="https://…/couverture.jpg"/><span>Une image large pour présenter votre univers. Le texte restera sur un fond assombri.</span></label>
+       <ImagePicker label="Logo" images={f.logoUrl?[f.logoUrl]:[]} onChange={images=>setF(s=>({...s,logoUrl:images[0]||null}))} description="Un logo carré et lisible, de préférence sur fond transparent." onBusyChange={value=>setImageBusy(s=>({...s,logo:value}))}/>
+       <ImagePicker label="Couverture" images={f.coverUrl?[f.coverUrl]:[]} onChange={images=>setF(s=>({...s,coverUrl:images[0]||null}))} description="Une image large pour présenter votre univers." onBusyChange={value=>setImageBusy(s=>({...s,cover:value}))}/>
        <label className="field">Titre d’accueil<input {...bind('heroTitle')} maxLength={180} placeholder="Votre prochain coup de cœur"/></label>
        <div className="brand-presets" aria-label="Palettes de couleurs">{THEMES.map(([name,accentColor,backgroundColor,textColor])=><button key={name} type="button" className="btn" onClick={()=>setF(s=>({...s,accentColor,backgroundColor,textColor}))} aria-pressed={f.accentColor===accentColor&&f.backgroundColor===backgroundColor&&f.textColor===textColor}><i style={{background:accentColor}}/>{name}</button>)}</div>
        <div className="grid3">{[['accentColor','Couleur principale'],['backgroundColor','Couleur de fond'],['textColor','Couleur du texte']].map(([key,label])=><label key={key} className="field">{label}<input type="color" {...bind(key)}/><span>{f[key]}</span></label>)}</div>
@@ -61,7 +65,7 @@ function Form({ store }) {
       <label className="field">Message de partage par défaut<textarea {...bind('shareMessage')} placeholder="Laisser vide pour le message automatique" /></label>
       <label className="field">Objectif de ventes mensuel (FCFA)<input {...bind('monthlyTarget')} inputMode="numeric" />{err.monthlyTarget && <small>{err.monthlyTarget}</small>}</label>
       {err.save&&<p className="action-error" role="alert">{err.save}</p>}
-      <div className="acts"><button className="btn lime" disabled={busy}>{busy?'Enregistrement…':'Enregistrer'}</button></div>
+      <div className="acts"><button className="btn lime" disabled={busy||uploading}>{uploading?'Import des images…':busy?'Enregistrement…':'Enregistrer'}</button></div>
     </form>
   );
 }

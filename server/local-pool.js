@@ -11,7 +11,7 @@ export async function createLocalPool(dataDir) {
   const applied=(await db.query('SELECT name FROM aurelia_migrations')).rows.map(r=>r.name);
   await db.exec('BEGIN');
   try {
-    for (const [name,path] of [['001-schema','../aurelia-dashboard/database/schema.sql'],['002-sessions','./migrations/002-sessions.sql'],['003-universal-catalogue','./migrations/003-universal-catalogue.sql'],['004-store-branding','./migrations/004-store-branding.sql'],['005-product-variants','./migrations/005-product-variants.sql']]) {
+    for (const [name,path] of [['001-schema','../aurelia-dashboard/database/schema.sql'],['002-sessions','./migrations/002-sessions.sql'],['003-universal-catalogue','./migrations/003-universal-catalogue.sql'],['004-store-branding','./migrations/004-store-branding.sql'],['005-product-variants','./migrations/005-product-variants.sql'],['006-local-media','./migrations/006-local-media.sql']]) {
       if(!applied.includes(name)){
         await db.exec(await readFile(new URL(path,import.meta.url),'utf8'));
         await db.query('INSERT INTO aurelia_migrations(name) VALUES($1)',[name]);
@@ -19,7 +19,7 @@ export async function createLocalPool(dataDir) {
     }
     // Le serveur local tourne lui aussi sous un rôle sans privilège de contournement RLS.
     await db.exec("DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='aurelia_local') THEN CREATE ROLE aurelia_local NOLOGIN NOSUPERUSER NOBYPASSRLS; END IF; END $$;");
-    await db.exec('GRANT USAGE ON SCHEMA public TO aurelia_local; GRANT SELECT,INSERT,UPDATE,DELETE ON users,stores,products,categories,product_images,product_variants,customers,orders,order_items,reviews,tasks,events,sessions,newsletter_subscribers TO aurelia_local; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO aurelia_local; GRANT pg_checkpoint TO aurelia_local; COMMIT; SET ROLE aurelia_local;');
+    await db.exec('GRANT USAGE ON SCHEMA public TO aurelia_local; GRANT SELECT,INSERT,UPDATE,DELETE ON users,stores,products,categories,product_images,product_variants,media_assets,customers,orders,order_items,reviews,tasks,events,sessions,newsletter_subscribers TO aurelia_local; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO aurelia_local; GRANT pg_checkpoint TO aurelia_local; COMMIT; SET ROLE aurelia_local;');
   } catch(e) {await db.exec('ROLLBACK');await db.close();throw e;}
   // PGlite n'a qu'une connexion : sérialiser les transactions entières, pas leurs requêtes.
   let tail=Promise.resolve();

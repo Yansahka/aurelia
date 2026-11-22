@@ -88,6 +88,18 @@ La boutique exige un choix complet avant l’ajout au panier. Les variantes ont 
 
 `npm run test:variants:postgres` vérifie ces parcours sur PostgreSQL natif et conserve deux boutiques de validation indépendantes. Le [rapport du lot 3](docs/variantes-produits-lot3/rapport-lot3.html) contient les résultats et les captures.
 
+## Images locales — lot 4
+
+Dans le formulaire produit, « Choisir des photos » ouvre le sélecteur de fichiers de l’ordinateur (ou la galerie disponible sur mobile). Choisir plusieurs photos, les réordonner, les remplacer ou les retirer, puis enregistrer le produit. Dans « Ma boutique », sélectionner le logo et la couverture puis enregistrer. Les anciennes images HTTPS restent compatibles.
+
+Formats acceptés : JPEG, PNG et WebP fixes, 10 Mo et 40 mégapixels maximum par image. Le serveur corrige l’orientation, retire les métadonnées et produit un WebP de 2 400 pixels maximum par côté. Jusqu’à huit photos par produit. Le logo conserve sa transparence.
+
+Les fichiers sont enregistrés dans `.local/uploads/<id-boutique>/` sur l’ordinateur qui exécute l’API ; PostgreSQL conserve leurs références dans `media_assets`. Le dossier est exclu de Git. `MEDIA_DIRECTORY` permet de choisir un autre dossier persistant. Après changement de dossier, copier les fichiers existants en conservant leur arborescence avant de relancer l’application. Sauvegarder ensemble la base et ce dossier.
+
+L’import envoie immédiatement le fichier à l’application ; l’association au produit ou à la boutique prend effet après enregistrement. Retirer ou remplacer une photo ne supprime pas son ancien fichier, afin de préserver les liens existants. Les imports abandonnés restent également sur le disque ; aucune purge automatique n’est activée.
+
+`npm run test:media:postgres` vérifie les imports, leur isolation, les associations et la persistance sur PostgreSQL natif, avec des boutiques de test distinctes. Le [rapport du lot 4](docs/images-locales-lot4/rapport-lot4.html) et le [guide du stockage](docs/IMAGES.md) détaillent la validation et la migration future vers un fournisseur.
+
 ## Périmètre actuel
 
 Les commandes sont des demandes commerciales : aucun paiement en ligne, aucune réservation ni décrémentation automatique du stock. La disponibilité est vérifiée à la demande, puis le vendeur confirme sur WhatsApp. Les avis existants peuvent être publiés depuis le dashboard ; la collecte de nouveaux avis et la création de tâches ne sont pas encore proposées dans l’interface. Pas de facturation des abonnements, de vérification e-mail ni de récupération de mot de passe pour l’instant. Un compte correspond à une boutique et un propriétaire. Le changement de slug change immédiatement l’adresse publique et les anciens liens cessent de fonctionner.

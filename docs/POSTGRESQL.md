@@ -70,7 +70,7 @@ CREATE ROLE aurelia_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
 GRANT CONNECT ON DATABASE aurelia TO aurelia_app;
 GRANT USAGE ON SCHEMA public TO aurelia_app;
 GRANT SELECT, INSERT, UPDATE, DELETE
-ON users, stores, products, product_variants, categories, product_images, customers, orders, order_items, reviews,
+ON users, stores, products, product_variants, media_assets, categories, product_images, customers, orders, order_items, reviews,
    tasks, events, sessions, newsletter_subscribers
 TO aurelia_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO aurelia_app;
@@ -82,9 +82,11 @@ Remplacer `DATABASE_URL` dans `.env` par la connexion `aurelia_app`. Garder la c
 
 ## 4. Démarrer et valider
 
+La migration 006 ajoute les métadonnées `media_assets` et autorise les références `/media/…` dans les galeries, logos et couvertures sans modifier les lignes existantes. Pour un rôle SQL personnalisé, accorder les droits `SELECT, INSERT, UPDATE, DELETE ON media_assets`. Le compte applicatif reste sans privilège de contournement RLS. Exécuter `npm run db:migrate`, installer les nouvelles dépendances, compiler puis redémarrer l’API. Les fichiers sont conservés séparément de la base : voir [IMAGES.md](IMAGES.md).
+
 La migration 005 ajoute `product_variants`, les options des produits et les instantanés des variantes dans les lignes de commande. Elle ne convertit aucun produit existant et ne recalcule aucun montant historique. Exécuter `npm run db:migrate` avec le propriétaire avant de démarrer cette version. Les rôles locaux `aurelia_app_*`, `aurelia_app` et `aurelia_local` reçoivent les droits sur la nouvelle table ; pour un rôle personnalisé, accorder explicitement `SELECT, INSERT, UPDATE, DELETE ON product_variants`. La RLS reste obligatoire, avec `app.store_id` fixé par les transactions de l’API. `npm run test:variants:postgres` valide les variantes, les stocks et l’isolation sur la base configurée.
 
-La migration 004 ajoute l’identité visuelle des boutiques : logo, couverture, couleurs et titre d’accueil. Elle conserve les données existantes. Les réglages se font dans « Ma boutique » ; les images utilisent des URL HTTPS. Les fiches publiques sont disponibles sur `/s/:slug/p/:id`, avec la même session de panier que le catalogue. Les produits masqués ou supprimés ne sont pas servis par `/v1/public/stores/:slug/products/:id`.
+La migration 004 ajoute l’identité visuelle des boutiques : logo, couverture, couleurs et titre d’accueil. Elle conserve les données existantes. Les réglages se font dans « Ma boutique » ; le lot 4 permet désormais de sélectionner les images depuis l’ordinateur. Les fiches publiques sont disponibles sur `/s/:slug/p/:id`, avec la même session de panier que le catalogue. Les produits masqués ou supprimés ne sont pas servis par `/v1/public/stores/:slug/products/:id`.
 
 ```powershell
 npm install

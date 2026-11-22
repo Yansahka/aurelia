@@ -1,6 +1,8 @@
 import { fail, text } from './security.js';
 import { row } from './data.js';
 import { variantSummary } from '../shared/variants.js';
+import { imageUrl } from './branding.js';
+import { validateImageReference } from './media.js';
 const id = value => {if(typeof value!=='string'||! /^[a-f0-9-]{36}$/i.test(value))fail(400,'Categorie invalide.');return value;};
 export async function catalogueProducts(c,storeId,publicOnly=false) {
  const products=(await c.query(`SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id=p.category_id AND c.store_id=p.store_id WHERE p.store_id=$1 ${publicOnly?'AND p.is_active AND p.deleted_at IS NULL':''} ORDER BY p.position,p.created_at,p.id`,[storeId])).rows.map(row);
@@ -19,12 +21,8 @@ export async function productExtras(c,storeId,d,existing={}) {
  }
  let images=Object.hasOwn(d,'images')?d.images:Object.hasOwn(d,'image')?(d.image?[d.image]:[]):existing.images||(existing.image?[existing.image]:[]);
  if(!Array.isArray(images)||images.length>8)fail(400,'Galerie : 8 photos maximum.');
- images=images.map(url=>{
-  const value=text(url,'URL de photo',2000);
-  let parsed;try{parsed=new URL(value);}catch{fail(400,'URL de photo invalide.');}
-  if(parsed.protocol!=='https:'||!parsed.hostname||parsed.username||parsed.password)fail(400,'Les photos doivent utiliser une URL HTTPS sans identifiants.');
-  return value;
- });
+ images=images.map(url=>{const value=imageUrl(text(url,'URL de photo',2000));if(!value)fail(400,'Photo invalide.');return value;});
+ for(const url of images)await validateImageReference(c,storeId,url);
  if(new Set(images).size!==images.length)fail(400,'Chaque photo doit etre differente.');
  return {categoryId,reference:text(p.reference??'','Reference',80,false),description:text(p.description??'','Description',5000,false),attributes,images};
 }

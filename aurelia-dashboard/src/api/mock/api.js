@@ -14,6 +14,7 @@ const find = (list, id) => list.find((x) => x.id === id);
 
 const withStats = (p) => ({...p,categoryName:find(db.categories,p.categoryId)?.name});
 export const mockApi = {
+  media:{upload:async()=>{throw new Error('Connectez-vous à votre boutique pour importer des images.');}},
   me: () => out(db.user),
   categories: {
     list:()=>out(db.categories),

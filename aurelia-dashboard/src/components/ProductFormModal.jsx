@@ -8,6 +8,7 @@ import { productImage } from '../lib/art';
 import { Switch } from './ui/Bits';
 import Modal from './ui/Modal';
 import VariantEditor from './VariantEditor';
+import ImagePicker from './ImagePicker';
 import { variantSummary } from '../../../shared/variants.js';
 
 const DEFAULTS={name:'',tagline:'',description:'',reference:'',price:'',oldPrice:'',stock:'0',size:'',categoryId:'',badge:'',isActive:true,isFeatured:false,isNew:false,hasVariants:false};
@@ -20,6 +21,7 @@ function Form({ product, onClose }) {
  const [variantOptions,setVariantOptions]=useState(product?.variantOptions||[]),[variants,setVariants]=useState(product?.variants||[]),[variantDirty,setVariantDirty]=useState(false);
  const [newCategory,setNewCategory]=useState(''),[categoryBusy,setCategoryBusy]=useState(false);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const [imageBusy,setImageBusy]=useState(false);
  const set=(key,value)=>setF(prev=>({...prev,[key]:value}));
  const field=key=>({value:f[key],onChange:e=>set(key,e.target.value)});
  const addCategory=async()=>{
@@ -27,6 +29,7 @@ function Form({ product, onClose }) {
  };
  const submit=async e=>{
   e.preventDefault();setError('');
+  if(imageBusy||busy)return;
   const price=Number(f.price),stock=Number(f.stock),oldPrice=f.oldPrice===''?null:Number(f.oldPrice);
   if(!f.name.trim()||!f.hasVariants&&(!Number.isInteger(price)||price<=0||!Number.isInteger(stock)||stock<0||oldPrice!==null&&(!Number.isInteger(oldPrice)||oldPrice<=price))){setError('Vérifiez le nom, le prix, le stock et le prix promotionnel.');return;}
   const rows=variants.map(v=>({...v,price:Number(v.price),stock:Number(v.stock),oldPrice:v.oldPrice==null||v.oldPrice===''?null:Number(v.oldPrice)}));
@@ -40,9 +43,8 @@ function Form({ product, onClose }) {
    invalidate('products','stats','categories');toast(product?'Produit mis à jour':'Produit ajouté');onClose();
   }catch(x){setError(x.message||'Enregistrement impossible');setBusy(false);}
  };
- const movePhoto=(index,direction)=>setPhotos(prev=>{const next=[...prev];[next[index],next[index+direction]]=[next[index+direction],next[index]];return next;});
  return <form className="stack product-form" onSubmit={submit}>
-  <div className="product-form-heading"><span className="thumb" style={{width:62,height:72}}><img src={productImage({...f,image:photos[0]})} alt=""/></span><label className="field">Nom du produit *<input {...field('name')} required maxLength={150} autoFocus/></label></div>
+  <div className="product-form-heading"><span className="thumb" style={{width:62,height:72}}><img src={productImage({...f,images:photos,image:photos[0]})} alt=""/></span><label className="field">Nom du produit *<input {...field('name')} required maxLength={150} autoFocus/></label></div>
   <label className="field">Description courte<input {...field('tagline')} maxLength={500} placeholder="L’essentiel de votre produit en une phrase"/></label>
   <label className="field">Description détaillée<textarea {...field('description')} maxLength={5000} placeholder="Utilisation, composition, contenu du colis…"/></label>
   <div className="product-setting">Ce produit a des variantes<Switch on={f.hasVariants} onChange={value=>set('hasVariants',value)} label="Ce produit a des variantes"/></div>
@@ -60,14 +62,11 @@ function Form({ product, onClose }) {
    {attributes.map(([name,value],index)=><div className="attribute-row" key={index}><label className="field">Nom<input aria-label={'Caractéristique '+(index+1)} value={name} maxLength={80} onChange={e=>setAttributes(prev=>prev.map((pair,i)=>i===index?[e.target.value,pair[1]]:pair))}/></label><label className="field">Valeur<input aria-label={'Valeur '+(index+1)} value={value} maxLength={500} onChange={e=>setAttributes(prev=>prev.map((pair,i)=>i===index?[pair[0],e.target.value]:pair))}/></label><button type="button" className="btn" aria-label={'Supprimer la caractéristique '+(index+1)} onClick={()=>setAttributes(prev=>prev.filter((_,i)=>i!==index))}>Retirer</button></div>)}
    <button type="button" className="btn" disabled={attributes.length>=20} onClick={()=>setAttributes(prev=>[...prev,['','']])}>Ajouter une caractéristique</button>
   </fieldset>
-  <fieldset className="catalogue-section"><legend>Photos ({photos.length}/8)</legend><p className="muted">Utilisez des liens HTTPS vers vos photos. La première est la photo principale.</p>
-   {photos.map((url,index)=><div className="photo-row" key={index}><label className="field">{index===0?'Photo principale':'Photo '+(index+1)}<input type="url" aria-label={'URL photo '+(index+1)} value={url} maxLength={2000} required placeholder="https://…" onChange={e=>setPhotos(prev=>prev.map((value,i)=>i===index?e.target.value:value))}/></label><div className="photo-actions"><button type="button" className="btn sm" disabled={index===0} aria-label={'Monter la photo '+(index+1)} onClick={()=>movePhoto(index,-1)}>Monter</button><button type="button" className="btn sm" disabled={index===photos.length-1} aria-label={'Descendre la photo '+(index+1)} onClick={()=>movePhoto(index,1)}>Descendre</button><button type="button" className="btn sm danger" aria-label={'Supprimer la photo '+(index+1)} onClick={()=>setPhotos(prev=>prev.filter((_,i)=>i!==index))}>Retirer</button></div></div>)}
-   <button type="button" className="btn" disabled={photos.length>=8} onClick={()=>setPhotos(prev=>[...prev,''])}>Ajouter une photo</button>
-  </fieldset>
+  <ImagePicker images={photos} onChange={setPhotos} label="Photos du produit" description="Sélectionnez vos photos dans la galerie. La première est la photo principale." multiple max={8} onBusyChange={setImageBusy}/>
   <label className="field">Étiquette<select {...field('badge')}><option value="">Aucune</option>{BADGES.map(b=><option key={b}>{b}</option>)}</select></label>
   {[['isActive','Visible dans la boutique'],['isFeatured','Mettre en avant'],['isNew','Afficher comme nouveauté']].map(([key,label])=><div className="product-setting" key={key}>{label}<Switch on={f[key]} onChange={value=>set(key,value)} label={label}/></div>)}
   {error&&<p className="action-error" role="alert">{error}</p>}
-  <div className="acts"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn lime" disabled={busy||categoryBusy||f.hasVariants&&variantDirty}>{busy?'Enregistrement…':product?'Enregistrer':'Ajouter le produit'}</button></div>
+  <div className="acts"><button type="button" className="btn ghost" onClick={onClose}>Annuler</button><button className="btn lime" disabled={busy||imageBusy||categoryBusy||f.hasVariants&&variantDirty}>{imageBusy?'Import des images…':busy?'Enregistrement…':product?'Enregistrer':'Ajouter le produit'}</button></div>
  </form>;
 }
 export default function ProductFormModal(){

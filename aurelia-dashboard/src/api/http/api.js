@@ -13,6 +13,12 @@ async function req(path, { method = 'GET', body, params } = {}) {
 }
 
 export const httpApi = {
+  media: {upload:async(file)=>{
+    const body=new FormData();body.append('image',file);
+    const res=await fetch(CONFIG.API_BASE+'/media',{method:'POST',credentials:'include',body});
+    if(res.status===401){window.dispatchEvent(new Event('auth:expired'));throw new Error('Session expirée. Reconnectez-vous.');}
+    const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||'Import impossible. Réessayez.');return data;
+  }},
   me: () => req('/auth/me'),
   categories: {
     list: () => req('/categories').then(r=>r.items),

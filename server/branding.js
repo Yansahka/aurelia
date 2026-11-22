@@ -5,6 +5,7 @@ export function color(value){if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test
 export function imageUrl(value){
  if(value===null||value==='')return null;
  const input=text(value,'URL de l’image',2000);let url;
+ if(/^\/media\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.webp$/.test(input))return input;
  try{url=new URL(input);}catch{fail(400,'URL d’image invalide.');}
  if(url.protocol!=='https:'||!url.hostname||url.username||url.password)fail(400,'Utilisez une URL d’image HTTPS sans identifiants.');
  return input.replace(/^https:/i,'https:');
