@@ -26,7 +26,7 @@ function Shop() {
       <Navbar query={query} onQuery={search} />
       <main>
         <Hero />
-        <ProductCarousel query={query} family={family} onResetFamily={() => setFamily(null)} />
+        <ProductCarousel query={query} family={family} onFamily={setFamily} onResetFamily={() => setFamily(null)} />
         <Story />
         <Rituals onFamily={setFamily} />
         <BestSellers />

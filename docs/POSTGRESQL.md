@@ -70,7 +70,7 @@ CREATE ROLE aurelia_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
 GRANT CONNECT ON DATABASE aurelia TO aurelia_app;
 GRANT USAGE ON SCHEMA public TO aurelia_app;
 GRANT SELECT, INSERT, UPDATE, DELETE
-ON users, stores, products, customers, orders, order_items, reviews,
+ON users, stores, products, categories, product_images, customers, orders, order_items, reviews,
    tasks, events, sessions, newsletter_subscribers
 TO aurelia_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO aurelia_app;

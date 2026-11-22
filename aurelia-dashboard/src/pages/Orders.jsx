@@ -84,7 +84,7 @@ export default function Orders({ route }) {
       <PageHead title="Commandes" sub={`${open.length} commandes ouvertes · ${money(open.reduce((t, o) => t + o.total, 0), store.currency)} en jeu`} />
       <div className="filters">
         <div className="tabs">{[['board', 'Tableau'], ['list', 'Liste']].map(([k, l]) => <button key={k} className={view === k ? 'on' : ''} onClick={() => setView(k)}>{l}</button>)}</div>
-        <label className="qinput"><Icon name="search" className="ic" style={{ width: 14, height: 14 }} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrer par client, code ou parfum" /></label>
+        <label className="qinput"><Icon name="search" className="ic" style={{ width: 14, height: 14 }} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrer par client, code ou produit" /></label>
       </div>
 
       {view === 'board' ? (
@@ -115,7 +115,7 @@ export default function Orders({ route }) {
       ) : (
         <div className="card scroll-x" style={{ padding: 6 }}>
           <table className="tbl">
-            <thead><tr><th>Code</th><th>Client</th><th>Parfums</th><th>Statut</th><th>Date</th><th className="r">Total</th></tr></thead>
+            <thead><tr><th>Code</th><th>Client</th><th>Produits</th><th>Statut</th><th>Date</th><th className="r">Total</th></tr></thead>
             <tbody>{list.map((o) => <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => setSel(o.id)}><td className="num">#{o.code}</td><td>{o.customerName}</td><td className="muted">{summary(o)}</td><td><StagePill status={o.status} /></td><td className="muted">{dateShort(o.createdAt)}</td><td className="r num">{money(o.total, store.currency)}</td></tr>)}</tbody>
           </table>
           {!list.length && <div className="empty">Aucune commande.</div>}

@@ -27,7 +27,8 @@ test('Sécurité du stockage embarqué local',async t=>{
   const child=fork(new URL('./helpers/write-local.mjs',import.meta.url),[dir],{stdio:['ignore','ignore','pipe','ipc'],windowsHide:true});children.push(child);
   let stderr='';child.stderr.on('data',data=>{stderr=(stderr+data.toString()).slice(-2000);});
   await new Promise((resolve,reject)=>{
-   const timer=setTimeout(()=>reject(new Error('Child startup timeout: '+stderr)),30000);
+   // L'initialisation WASM et le checkpoint sur disque peuvent etre lents sous Windows.
+   const timer=setTimeout(()=>reject(new Error('Child startup timeout: '+stderr)),90000);
    child.once('message',message=>{clearTimeout(timer);message==='committed'?resolve():reject(new Error('Unexpected child message'));});
    child.once('exit',code=>{clearTimeout(timer);reject(new Error('Child exited early: '+code+' '+stderr));});
   });

@@ -52,7 +52,7 @@ export function report(db, { metric = 'revenue', group = 'month' }) {
     const its = db.items.filter((i) => i.orderId === o.id);
     if (group === 'month') contrib.push({ key: monthKey(o.createdAt), label: monthShort(o.createdAt), o, amount: o.total });
     else if (group === 'product') its.forEach((i) => contrib.push({ key: i.productId, label: i.name, o, amount: i.qty * i.unitPrice }));
-    else its.forEach((i) => { const f = prodOf(i.productId)?.family || 'autre'; contrib.push({ key: f, label: familyLabel(f), o, amount: i.qty * i.unitPrice }); });
+    else its.forEach((i) => { const p=prodOf(i.productId);const category=group==='category';const f=category?(p?.categoryId||'sans-categorie'):(p?.family||'autre'); contrib.push({ key:f,label:category?(p?.categoryName||'Sans categorie'):familyLabel(f),o,amount:i.qty*i.unitPrice }); });
   });
   const keys = group === 'month' ? months.map((d) => ({ key: monthKey(d), label: monthShort(d) })) : [...new Map(contrib.map((c) => [c.key, { key: c.key, label: c.label }])).values()];
   const agg = (list) => {
@@ -70,4 +70,3 @@ export function report(db, { metric = 'revenue', group = 'month' }) {
   return { metric, group, total, highest, rows };
 }
 export { enrich };
-

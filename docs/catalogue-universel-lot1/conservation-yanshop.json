@@ -1,0 +1,165 @@
+{
+  "checkedAt": "2026-11-22T18:21:51.076Z",
+  "store": "Yanshop",
+  "branch": "feature/catalogue-universel-lot-1",
+  "counts": {
+    "products": {
+      "before": 8,
+      "after": 8,
+      "preserved": true
+    },
+    "customers": {
+      "before": 1,
+      "after": 1,
+      "preserved": true
+    },
+    "orders": {
+      "before": 1,
+      "after": 1,
+      "preserved": true
+    },
+    "reviews": {
+      "before": 0,
+      "after": 0,
+      "preserved": true
+    },
+    "tasks": {
+      "before": 0,
+      "after": 0,
+      "preserved": true
+    },
+    "events": {
+      "before": 9,
+      "after": 12,
+      "preserved": true
+    },
+    "newsletter_subscribers": {
+      "before": 0,
+      "after": 0,
+      "preserved": true
+    },
+    "order_items": {
+      "before": 1,
+      "after": 1,
+      "preserved": true
+    }
+  },
+  "categories": [
+    {
+      "id": "457517c9-d4a6-40ce-8f97-9010b9597e91",
+      "name": "Agrumes & frais"
+    },
+    {
+      "id": "4cbfe435-c43f-4f34-83dd-1e7961dedd98",
+      "name": "Ambres"
+    },
+    {
+      "id": "ceba1861-eb61-416e-8d82-eecd40f70ad3",
+      "name": "Bois"
+    },
+    {
+      "id": "3f5d12e1-bff4-4796-a0d6-9cb3b52835ba",
+      "name": "Fleurs"
+    }
+  ],
+  "products": [
+    {
+      "id": "87d5b356-d0f0-4b0a-92f1-28c242557b25",
+      "name": "Rose de Minuit",
+      "price": "25000",
+      "stock": 15,
+      "size_label": "50 ml",
+      "note": "Rose",
+      "attributes": {
+        "Note principale": "Rose"
+      },
+      "category": "Fleurs"
+    },
+    {
+      "id": "70b04ab2-c4f2-4e59-be5c-932ef67e13c9",
+      "name": "Oud Impérial",
+      "price": "65000",
+      "stock": 3,
+      "size_label": "100 ml",
+      "note": "Oud",
+      "attributes": {
+        "Note principale": "Oud"
+      },
+      "category": "Bois"
+    },
+    {
+      "id": "1ad94f53-b59e-44a4-b5e3-0efce706ca45",
+      "name": "Ambre Doré",
+      "price": "32000",
+      "stock": 12,
+      "size_label": "50 ml",
+      "note": "Ambre",
+      "attributes": {
+        "Note principale": "Ambre"
+      },
+      "category": "Ambres"
+    },
+    {
+      "id": "561af73f-4125-4fe7-bfe7-773768a75b90",
+      "name": "Citron Soleil",
+      "price": "18500",
+      "stock": 25,
+      "size_label": "30 ml",
+      "note": "Citron",
+      "attributes": {
+        "Note principale": "Citron"
+      },
+      "category": "Agrumes & frais"
+    },
+    {
+      "id": "200cb822-f22f-473e-9aec-5bcfff28cfda",
+      "name": "Jasmin Blanc",
+      "price": "28000",
+      "stock": 0,
+      "size_label": "50 ml",
+      "note": "Jasmin",
+      "attributes": {
+        "Note principale": "Jasmin"
+      },
+      "category": "Fleurs"
+    },
+    {
+      "id": "21aa8614-cf01-4555-94ba-595d1a930da1",
+      "name": "Cèdre Sauvage",
+      "price": "35000",
+      "stock": 1,
+      "size_label": "75 ml",
+      "note": "Cèdre",
+      "attributes": {
+        "Note principale": "Cèdre"
+      },
+      "category": "Bois"
+    },
+    {
+      "id": "9bf1be9e-c33e-4b0d-b10d-9d467614ac3a",
+      "name": "Vanille Ambrée",
+      "price": "22500",
+      "stock": 8,
+      "size_label": "50 ml",
+      "note": "Vanille",
+      "attributes": {
+        "Note principale": "Vanille"
+      },
+      "category": "Ambres"
+    },
+    {
+      "id": "2da0386f-3397-4b7c-8ab9-cbccfa72ed70",
+      "name": "Bergamote Secrète",
+      "price": "29900",
+      "stock": 10,
+      "size_label": "100 ml",
+      "note": "Bergamote",
+      "attributes": {
+        "Note principale": "Bergamote"
+      },
+      "category": "Agrumes & frais"
+    }
+  ],
+  "originalFieldsUnchanged": true,
+  "backup": ".local/backups/catalogue-universel-2026-11-22/aurelia-avant-lot1.dump"
+}

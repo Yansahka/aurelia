@@ -2,7 +2,7 @@ import { storeUrl } from '../config';
 
 // Message de partage par défaut (modifiable par le vendeur dans « Ma boutique »).
 export const defaultShareMessage = (store) =>
-  `Découvrez ${store.name} : nos parfums, à commander directement sur WhatsApp.`;
+  `Découvrez ${store.name} : nos produits, à commander directement sur WhatsApp.`;
 
 export const shareText = (store, message) => `${message || store.shareMessage || defaultShareMessage(store)}\n${storeUrl(store.slug)}`;
 

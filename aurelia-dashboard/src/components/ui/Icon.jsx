@@ -1,4 +1,5 @@
 const P = {
+  package: <><path d="m3 7 9-4 9 4v10l-9 4-9-4V7Z"/><path d="m3 7 9 4 9-4M12 11v10M7.5 5l9 4"/></>,
   overview: <><rect x="4" y="4" width="7" height="7" rx="2" /><rect x="13" y="4" width="7" height="7" rx="2" /><rect x="4" y="13" width="7" height="7" rx="2" /><rect x="13" y="13" width="7" height="7" rx="2" /></>,
   bottle: <><rect x="9" y="3" width="6" height="4" rx="1" /><path d="M10 7v2.5M14 7v2.5" /><rect x="6" y="9.5" width="12" height="11" rx="3" /><path d="M9.5 15h5" /></>,
   orders: <><rect x="3.5" y="4" width="5" height="16" rx="1.5" /><rect x="10" y="4" width="5" height="10" rx="1.5" /><rect x="16.5" y="4" width="4" height="13" rx="1.5" /></>,

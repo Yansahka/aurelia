@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { hashPassword, verifyPassword, digest, newToken, fail, text, email, phone, slug, integer } from './security.js';
 import { row, loadData, publicHome } from './data.js';
 import { overview, report, enrich } from './stats.js';
+import { catalogueProducts, productExtras, saveExtras, categoryRoutes } from './catalogue.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const uuid = id => { if (!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id)) fail(404, 'Élément introuvable.'); return id; };
@@ -67,6 +68,7 @@ export function createApp(pool, options = {}) {
     });
   }
   app.get('/v1/health', async (req,res) => { await pool.query('SELECT 1'); res.json({status:'ok'}); });
+  categoryRoutes(app,tenant);
   app.post('/v1/auth/register',authLimiter,async(req,res)=>{
     const d=req.body || {}, address=email(d.email), name=text(d.name,'Nom',100), storeName=text(d.storeName,'Nom de boutique',100), storeSlug=slug(d.slug), whatsapp=phone(d.whatsapp);
     if (typeof d.password!=='string' || d.password.length<12 || d.password.length>128) fail(400,'Le mot de passe doit contenir de 12 à 128 caractères.');
@@ -115,24 +117,29 @@ export function createApp(pool, options = {}) {
   });
   function productData(d, existing={}) {
     const p={...existing,...d};
-    const name=text(p.name,'Nom du parfum',150), price=integer(p.price,'Prix',1), stock=integer(p.stock??0,'Stock');
+    const name=text(p.name,'Nom du produit',150), price=integer(p.price,'Prix',1), stock=integer(p.stock??0,'Stock');
     const oldPrice=p.oldPrice==null||p.oldPrice===''?null:integer(p.oldPrice,'Ancien prix',price+1);
     const string=(k,max=500)=>text(p[k]??'',k,max,false);
     const boolean=(k,def=false)=>{if(p[k]!==undefined && typeof p[k]!=='boolean') fail(400,k+' invalide.');return p[k]??def;};
     const image=string('image',2000); if(image && !/^https:\/\//i.test(image)) fail(400,'Utilisez une URL d’image HTTPS.');
     const palette=p.palette??['#c9a27a','#5b3a1e']; if(!Array.isArray(palette)||palette.length!==2||!palette.every(x=>/^#[0-9a-f]{6}$/i.test(x))) fail(400,'Couleurs invalides.');
-    const family=string('family',30)||'bois';if(!['bois','fleurs','ambre','frais'].includes(family)) fail(400,'Famille invalide.');
+    const family=string('family',30)||'autre';if(!['bois','fleurs','ambre','frais','autre'].includes(family)) fail(400,'Famille invalide.');
     return [name,string('tagline'),price,oldPrice,string('size',80),string('note',100),family,string('badge',80)||null,stock,boolean('isActive',true),boolean('isFeatured'),boolean('isNew'),image||null,palette];
   }
   app.post('/v1/products',async(req,res)=>res.status(201).json(await tenant(req,async(c,s)=>{
+    const extras=await productExtras(c,s.id,req.body||{});
     const values=productData(req.body||{}); const productSlug=randomUUID();
-    return one(await c.query(`INSERT INTO products(name,tagline,price,old_price,size_label,note,family,badge,stock,is_active,is_featured,is_new,image_url,palette,store_id,slug) VALUES(${values.map((_,i)=>'$'+(i+1)).join(',')},$15,$16) RETURNING *`,[...values,s.id,productSlug]));
+    const product=one(await c.query(`INSERT INTO products(name,tagline,price,old_price,size_label,note,family,badge,stock,is_active,is_featured,is_new,image_url,palette,store_id,slug) VALUES(${values.map((_,i)=>'$'+(i+1)).join(',')},$15,$16) RETURNING *`,[...values,s.id,productSlug]));
+    return saveExtras(c,s.id,product.id,extras);
   })));
   app.patch('/v1/products/:id',async(req,res)=>res.json(await tenant(req,async(c,s)=>{
-    const id=uuid(req.params.id), existing=one(await c.query('SELECT * FROM products WHERE id=$1 AND store_id=$2 AND deleted_at IS NULL',[id,s.id]));
+    const id=uuid(req.params.id);one(await c.query('SELECT id FROM products WHERE id=$1 AND store_id=$2 AND deleted_at IS NULL FOR UPDATE',[id,s.id]));
+    const existing=(await catalogueProducts(c,s.id)).find(p=>p.id===id);
+    const extras=await productExtras(c,s.id,req.body||{},existing);
     const values=productData(req.body||{},existing);
     const cols=['name','tagline','price','old_price','size_label','note','family','badge','stock','is_active','is_featured','is_new','image_url','palette'];
-    return one(await c.query(`UPDATE products SET ${cols.map((k,i)=>k+'=$'+(i+1)).join(',')} WHERE id=$15 AND store_id=$16 RETURNING *`,[...values,id,s.id]));
+    await c.query(`UPDATE products SET ${cols.map((k,i)=>k+'=$'+(i+1)).join(',')} WHERE id=$15 AND store_id=$16`,[...values,id,s.id]);
+    return saveExtras(c,s.id,id,extras);
   })));
   for(const [method,path,deleted] of [['delete','/v1/products/:id',true],['post','/v1/products/:id/restore',false]]) app[method](path,async(req,res)=>res.json(await tenant(req,async(c,s)=>one(await c.query(`UPDATE products SET deleted_at=${deleted?'now()':'NULL'} WHERE id=$1 AND store_id=$2 RETURNING id`,[uuid(req.params.id),s.id])))));
   app.patch('/v1/orders/:id',async(req,res)=>res.json(await tenant(req,async(c,s)=>{
@@ -155,7 +162,7 @@ export function createApp(pool, options = {}) {
     const db=await loadData(c,s);if(req.params.kind==='overview')return overview(db);
     if(req.params.kind!=='report')fail(404,'Rapport introuvable.');
     const metric=req.query.metric||'revenue', group=req.query.group||'month';
-    if(!['revenue','orders','winrate','avg'].includes(metric)||!['month','product','family'].includes(group))fail(400,'Rapport invalide.');
+    if(!['revenue','orders','winrate','avg'].includes(metric)||!['month','product','family','category'].includes(group))fail(400,'Rapport invalide.');
     return report(db,{metric,group});
   })));
   async function publicTenant(req,fn) {
@@ -166,9 +173,10 @@ export function createApp(pool, options = {}) {
   }
   app.get('/v1/public/stores/:slug/home',async(req,res)=>res.json(await publicTenant(req,async(c,s)=>{
     // Les données privées (clients, commandes, tâches) ne sont jamais chargées par la vitrine.
-    const products=(await c.query('SELECT * FROM products WHERE store_id=$1 AND is_active AND deleted_at IS NULL',[s.id])).rows.map(row);
+    const products=await catalogueProducts(c,s.id,true);
+    const categories=(await c.query('SELECT * FROM categories WHERE store_id=$1 ORDER BY position,name',[s.id])).rows.map(row);
     const reviews=(await c.query('SELECT author,text,role,rating,is_published FROM reviews WHERE store_id=$1 AND is_published',[s.id])).rows.map(row);
-    return publicHome(s,{products,reviews});
+    return publicHome(s,{products,reviews,categories});
   })));
   app.post('/v1/public/stores/:slug/orders',async(req,res)=>res.status(201).json(await publicTenant(req,async(c,s)=>{
     const d=req.body||{}, customerName=text(d.customerName,'Votre nom',100), customerPhone=phone(d.phone);
@@ -209,10 +217,11 @@ export function createApp(pool, options = {}) {
   app.use(express.static(front));
   app.get(/^\/(?:s\/[^/]+\/?|demo\/?)?$/, (req,res)=>res.sendFile(resolve(front,'index.html')));
   app.use((err,req,res,next)=>{
-    const conflict=err.code==='23505', bad=err.code==='22P02'||err.code==='23514';
+    const conflict=err.code==='23505'||err.code==='23503', bad=err.code==='22P02'||err.code==='23514';
     const status=err.status || (conflict?409:bad?400:500);
     if(status>=500 && !options.quiet)console.error('Erreur API :',err.code||err.name);
-    res.status(status).json({error:{message:conflict?'Cette adresse e-mail ou cette adresse de boutique est déjà utilisée.':bad?'Informations invalides.':status>=500?'Service momentanément indisponible. Réessayez.':err.message}});
+    const duplicate=err.constraint==='categories_name_ci'?'Cette categorie existe deja.':err.constraint==='products_reference_ci'?'Cette reference produit existe deja.':err.code==='23503'?'Cet element est encore utilise.':'Cette adresse e-mail ou cette adresse de boutique est déjà utilisée.';
+    res.status(status).json({error:{message:conflict?duplicate:bad?'Informations invalides.':status>=500?'Service momentanément indisponible. Réessayez.':err.message}});
   });
   return app;
 }

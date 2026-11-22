@@ -42,7 +42,7 @@ try {
     const { rows: [db] } = await c.query('SELECT current_database() AS name');
     await c.query(`GRANT CONNECT ON DATABASE "${db.name.replaceAll('"', '""')}" TO ${role}`);
     await c.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
-    await c.query(`GRANT SELECT, INSERT, UPDATE, DELETE ON users, stores, products, customers, orders, order_items, reviews, tasks, events, sessions, newsletter_subscribers TO ${role}`);
+    await c.query(`GRANT SELECT, INSERT, UPDATE, DELETE ON users, stores, products, categories, product_images, customers, orders, order_items, reviews, tasks, events, sessions, newsletter_subscribers TO ${role}`);
     await c.query(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${role}`);
     await c.query('COMMIT');
   } catch (error) { await c.query('ROLLBACK'); throw error; }

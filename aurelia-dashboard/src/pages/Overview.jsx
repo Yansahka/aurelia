@@ -43,13 +43,13 @@ export default function Overview() {
     <>
       <PageHead title={`${hello}, ${me?.name.split(' ')[0] || ''}`} sub={`${store.name} · ${dateLong(new Date())} · ${o.open.count} commandes en cours · ${todo} actions aujourd’hui`}>
         <button className="btn" onClick={() => navigate('reports')}>Rapports</button>
-        <button className="btn lime" onClick={() => openProductForm()}><Icon name="plus" />Nouveau parfum</button>
+        <button className="btn lime" onClick={() => openProductForm()}><Icon name="plus" />Nouveau produit</button>
       </PageHead>
       {o.closed.total === 0 && o.open.count === 0 && <div className="card onboarding">
         <h3>{!hasProducts ? 'Votre boutique commence ici' : !hasVisibleProducts ? 'Votre collection attend ses visiteurs' : 'Votre catalogue est prêt à être partagé'}</h3>
-        <p>{!hasProducts ? 'Ajoutez votre premier parfum pour composer votre catalogue.' : !hasVisibleProducts ? 'Rendez au moins un parfum visible dans votre boutique avant de partager votre lien.' : 'Vérifiez les informations de votre boutique, puis partagez votre lien. Votre première commande apparaîtra ici.'}</p>
+        <p>{!hasProducts ? 'Ajoutez votre premier produit pour composer votre catalogue.' : !hasVisibleProducts ? 'Rendez au moins un produit visible dans votre boutique avant de partager votre lien.' : 'Vérifiez les informations de votre boutique, puis partagez votre lien. Votre première commande apparaîtra ici.'}</p>
         <ol className="setup-steps"><li className={hasProducts ? 'complete' : ''}>{hasProducts ? '✓ Catalogue créé' : 'Catalogue à créer'}</li><li className={store.whatsapp ? 'complete' : ''}>{store.whatsapp ? '✓ WhatsApp renseigné' : 'WhatsApp à renseigner'}</li><li>Première commande à recevoir</li></ol>
-        <button className="btn lime" onClick={!hasProducts ? () => openProductForm() : !hasVisibleProducts ? () => navigate('products') : openShare}>{!hasProducts ? 'Ajouter mon premier parfum' : !hasVisibleProducts ? 'Gérer mes parfums' : 'Partager ma boutique'}</button>
+        <button className="btn lime" onClick={!hasProducts ? () => openProductForm() : !hasVisibleProducts ? () => navigate('products') : openShare}>{!hasProducts ? 'Ajouter mon premier produit' : !hasVisibleProducts ? 'Gérer mes produits' : 'Partager ma boutique'}</button>
       </div>}
 
       <div className="card shop-strip">
@@ -105,7 +105,7 @@ export default function Overview() {
           ))}
         </div>
         <div className="card">
-          <div className="ch"><div><h3>Classement des parfums</h3><div className="sub">Les plus vendus (livrés)</div></div><button className="link" onClick={() => navigate('products')}>Parfums<Icon name="right" className="ic" style={{ width: 12, height: 12 }} /></button></div>
+          <div className="ch"><div><h3>Classement des produits</h3><div className="sub">Les plus vendus (livrés)</div></div><button className="link" onClick={() => navigate('products')}>Produits<Icon name="right" className="ic" style={{ width: 12, height: 12 }} /></button></div>
           {o.topProducts.map((p, i) => (
             <div className="list-r" key={p.productId}><span className="rank">{i + 1}</span>{p.image && <Thumb product={p.image} />}
               <span className="g">{p.name}<small>{p.units} vendus</small></span><span className="num">{compact(p.revenue, '')}</span></div>

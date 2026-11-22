@@ -14,6 +14,12 @@ async function req(path, { method = 'GET', body, params } = {}) {
 
 export const httpApi = {
   me: () => req('/auth/me'),
+  categories: {
+    list: () => req('/categories').then(r=>r.items),
+    create: name => req('/categories',{method:'POST',body:{name}}),
+    update: (id,name) => req('/categories/'+id,{method:'PATCH',body:{name}}),
+    remove: id => req('/categories/'+id,{method:'DELETE'}),
+  },
   store: { get: () => req('/store'), update: (patch) => req('/store', { method: 'PATCH', body: patch }) },
   products: {
     list: () => req('/products').then((r) => r.items),

@@ -6,9 +6,10 @@
     "dev:embedded": "node server/local.js",
     "db:setup-local": "node server/setup-postgres.js",
     "test:postgres": "node server/check-postgres.js",
+    "test:catalogue:postgres": "node server/check-catalogue-postgres.js",
     "db:migrate": "node server/migrate.js",
     "build": "npm --prefix aurelia-front run build && npm --prefix aurelia-dashboard run build",
-    "test": "node --test server/test/*.test.js"
+    "test": "node --test --test-concurrency=1 server/test/*.test.js"
   },
   "engines": { "node": ">=20" },
   "dependencies": { "express": "^5.1.0", "pg": "^8.16.3", "helmet": "^8.1.0", "express-rate-limit": "^8.2.1", "dotenv": "^17.2.3" },

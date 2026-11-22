@@ -6,13 +6,21 @@ const KEY = 'mockdb:v1';
 let db;
 try { db = JSON.parse(localStorage.getItem(KEY)); } catch { db = null; }
 if (!db || !db.store) db = buildSeed();
+db.categories ||= [...new Set(db.products.map(p=>p.family))].map(f=>({id:f,name:({bois:'Bois',fleurs:'Fleurs',ambre:'Ambres',frais:'Agrumes & frais'})[f]||f}));
+db.products.forEach(p=>{p.categoryId??=p.family;p.attributes??={};p.images??=p.image?[p.image]:[];});
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch { /* ignore */ } };
 const out = (v) => new Promise((r) => setTimeout(() => r(structuredClone(v)), 120));
 const find = (list, id) => list.find((x) => x.id === id);
 
-const withStats = (p) => p;
+const withStats = (p) => ({...p,categoryName:find(db.categories,p.categoryId)?.name});
 export const mockApi = {
   me: () => out(db.user),
+  categories: {
+    list:()=>out(db.categories),
+    create:name=>{const c={id:crypto.randomUUID(),name};db.categories.push(c);save();return out(c);},
+    update:(id,name)=>{find(db.categories,id).name=name;save();return out(find(db.categories,id));},
+    remove:id=>{if(db.products.some(p=>p.categoryId===id))return Promise.reject(new Error('Cette catégorie est utilisée.'));db.categories=db.categories.filter(c=>c.id!==id);save();return out(null);},
+  },
   store: {
     get: () => out(db.store),
     update: (patch) => { Object.assign(db.store, patch); save(); return out(db.store); },

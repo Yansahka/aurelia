@@ -1,6 +1,8 @@
 # Aurelia
 
-Plateforme de boutiques de parfums : site commercial, inscription vendeur, dashboard privé et boutique publique partageable. Chaque compte possède une boutique vide ; les données de démonstration restent uniquement sur `/demo`.
+Plateforme de boutiques de produits physiques : site commercial, inscription vendeur, dashboard privé et boutique publique partageable. Chaque compte possède une boutique vide et crée ses propres catégories ; les données de démonstration restent uniquement sur `/demo`.
+
+Le lot 1 ajoute les catégories par boutique, les références facultatives, les descriptions, les caractéristiques libres et une galerie de 8 photos HTTPS maximum. Les photos se gèrent par liens ; le téléversement de fichiers et les variantes ne font pas partie de ce lot. Les produits sans photo utilisent un visuel neutre. Voir [le rapport du lot 1](docs/catalogue-universel-lot1/rapport-lot1.html).
 
 ## Demarrer en local avec PostgreSQL
 
@@ -29,7 +31,7 @@ npm run build
 npm run dev:embedded
 ```
 
-Ouvrir **http://localhost:3000**, choisir « Créer ma boutique », puis ajouter un parfum depuis le dashboard. L’adresse de la boutique est `http://localhost:3000/s/votre-slug` ; le dashboard est `http://localhost:3000/dashboard/`.
+Ouvrir **http://localhost:3000**, choisir « Créer ma boutique », puis ajouter un produit depuis le dashboard. L’adresse de la boutique est `http://localhost:3000/s/votre-slug` ; le dashboard est `http://localhost:3000/dashboard/`.
 
 Ce mode utilise **PGlite, PostgreSQL embarqué WebAssembly**, avec de vraies tables SQL et la RLS active. Il n’ouvre pas de port PostgreSQL et ne lit pas `DATABASE_URL`. Les données sont conservées dans `.local/postgres` entre les démarrages. Ne pas lancer deux processus sur ce répertoire. Arrêter avec Ctrl+C. Le moteur embarqué est destiné au développement, pas à l’hébergement public. Les données de ce mode ne sont pas transférées automatiquement lors du passage à un serveur PostgreSQL.
 
@@ -71,6 +73,8 @@ La vitrine et les boutiques sont sur **http://localhost:5173**, le dashboard sur
 `npm test` vérifie le parcours avec deux vendeurs, la RLS sous un rôle non privilégié, les accès inter-boutiques refusés, les transactions, les prix calculés côté serveur, les commandes et la révocation de session. Les tests utilisent une base PostgreSQL embarquée en mémoire indépendante des données locales.
 
 `npm run build` compile les deux interfaces.
+
+`npm run test:catalogue:postgres` vérifie catégories, photos, références, caractéristiques, commandes et isolation sur la vraie base configurée. Il crée deux boutiques de validation indépendantes et conserve ces données. `npm test` utilise des bases isolées en mémoire ; les fichiers sont exécutés successivement pour limiter les moteurs WASM simultanés sous Windows.
 
 ## Périmètre actuel
 

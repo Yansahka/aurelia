@@ -18,7 +18,7 @@ export function StoreProvider({ children }) {
 
   useEffect(() => {
     if (!state.data) return;
-    document.title = state.data.store.name + ' — Parfumerie botanique';
+    document.title = state.data.store.name + ' — Boutique en ligne';
     api.track('view');
   }, [state.data]);
 

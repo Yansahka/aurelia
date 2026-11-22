@@ -16,7 +16,7 @@ export default function Navbar({ query, onQuery }) {
       <a className="logo" href="#">{store.name}</a>
       <div className="r">
         <label className="srch"><SearchIcon />
-          <input value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Rechercher un parfum" aria-label="Rechercher" />
+          <input value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Rechercher un produit" aria-label="Rechercher" />
         </label>
         <button className="ib" onClick={openBag} aria-label="Panier"><BagIcon />{count > 0 && <span className="cnt on">{count}</span>}</button>
         <a className="ib" href="/#connexion" aria-label="Espace vendeur Aurelia"><UserIcon /></a>

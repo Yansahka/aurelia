@@ -18,6 +18,10 @@ try {
     await c.query(await readFile(new URL('./migrations/002-sessions.sql', import.meta.url), 'utf8'));
     await c.query('INSERT INTO aurelia_migrations(name) VALUES ($1)', ['002-sessions']);
   }
+  if (!applied.includes('003-universal-catalogue')) {
+    await c.query(await readFile(new URL('./migrations/003-universal-catalogue.sql', import.meta.url), 'utf8'));
+    await c.query('INSERT INTO aurelia_migrations(name) VALUES ($1)', ['003-universal-catalogue']);
+  }
   await c.query('COMMIT');
   console.log('Migrations PostgreSQL appliquées.');
 } catch (e) { await c.query('ROLLBACK'); console.error('Migration échouée :', e.code || e.message); process.exitCode = 1; }

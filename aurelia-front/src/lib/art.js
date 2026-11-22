@@ -13,7 +13,8 @@ export const bottle = (a, b, shape = 0, bg = '#efe3c9') => {
 export const tile = (c) =>
   'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 130" preserveAspectRatio="none"><defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient></defs><rect width="100" height="130" fill="url(#t)"/></svg>`);
 
-export const productImage = (p) => p.image || bottle(p.palette, p.palette[1], p.shape, p.bg);
+export const productPlaceholder = "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20250%22%3E%3Crect%20width%3D%22200%22%20height%3D%22250%22%20fill%3D%22%23e9eee9%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23687f70%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m45%2095%2055-27%2055%2027v65l-55%2027-55-27Z%22%2F%3E%3Cpath%20d%3D%22m45%2095%2055%2027%2055-27M100%20122v65M73%2081l55%2027%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%22100%22%20y%3D%22218%22%20text-anchor%3D%22middle%22%20fill%3D%22%23687f70%22%20font-family%3D%22sans-serif%22%20font-size%3D%2210%22%3EPHOTO%20%C3%80%20AJOUTER%3C%2Ftext%3E%3C%2Fsvg%3E";
+export const productImage = p => p.images?.[0] || p.image || productPlaceholder;
 
 export function makeLeaves(count = 90) {
   let r = 7;

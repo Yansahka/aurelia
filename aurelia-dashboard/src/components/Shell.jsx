@@ -13,7 +13,7 @@ import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
 const PAGES = {
-  overview: [Overview, 'Vue d’ensemble'], products: [Products, 'Parfums'], orders: [Orders, 'Commandes'], customers: [Customers, 'Clients'],
+  overview: [Overview, 'Vue d’ensemble'], products: [Products, 'Produits'], orders: [Orders, 'Commandes'], customers: [Customers, 'Clients'],
   reviews: [Reviews, 'Avis'], reports: [Reports, 'Rapports'], store: [StorePage, 'Ma boutique'],
 };
 

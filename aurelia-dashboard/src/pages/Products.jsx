@@ -6,13 +6,14 @@ import { storeUrl } from '../config';
 import { useToast } from '../context/ToastContext';
 import { useUI } from '../context/UIContext';
 import { invalidate, useQuery } from '../hooks/useQuery';
-import { FAMILIES, familyLabel } from '../lib/constants';
+import CategoryManager from '../components/CategoryManager';
 import { money } from '../lib/format';
 import { waLink } from '../lib/share';
 
 export default function Products({ route }) {
   const productsQuery = useQuery('products', api.products.list);
   const storeQuery = useQuery('store', api.store.get);
+  const categoriesQuery = useQuery('categories',api.categories.list);
   const { data: products } = productsQuery;
   const { data: store } = storeQuery;
   const { openProductForm } = useUI();
@@ -31,10 +32,10 @@ export default function Products({ route }) {
   }, [products]);
   const list = useMemo(() => (products || []).filter((p) =>
     (tab === 'all' || (tab === 'active' && p.isActive) || (tab === 'draft' && !p.isActive) || (tab === 'out' && p.stock === 0)) &&
-    (!fam || p.family === fam) && (!q || (p.name + ' ' + p.note).toLowerCase().includes(q.toLowerCase()))), [products, tab, fam, q]);
+    (!fam || (fam==='uncategorized'?!p.categoryId:p.categoryId===fam)) && (!q || [p.name,p.reference,p.categoryName,p.tagline,p.size,...Object.values(p.attributes||{})].join(' ').toLowerCase().includes(q.toLowerCase()))), [products, tab, fam, q]);
 
-  if (productsQuery.error || storeQuery.error) return <QueryError message={(productsQuery.error || storeQuery.error).message} onRetry={() => { productsQuery.refetch(); storeQuery.refetch(); }} />;
-  if (!products || !store) return <Skeleton h={320} />;
+  if (productsQuery.error || storeQuery.error || categoriesQuery.error) return <QueryError message={(productsQuery.error || storeQuery.error || categoriesQuery.error).message} onRetry={() => { productsQuery.refetch(); storeQuery.refetch();categoriesQuery.refetch(); }} />;
+  if (!products || !store || !categoriesQuery.data) return <Skeleton h={320} />;
   const cur = store.currency;
 
   const toggle = async (p, v) => { setActionError(''); try { await api.products.update(p.id, { isActive: v }); invalidate('products', 'stats'); } catch(e) { setActionError(e.message); } };
@@ -49,32 +50,33 @@ export default function Products({ route }) {
 
   return (
     <>
-      <PageHead title="Parfums" sub={`${products.length} références · ${products.filter((p) => p.isActive).length} visibles dans la boutique`}>
-        <button className="btn lime" onClick={() => openProductForm()}><Icon name="plus" />Nouveau parfum</button>
+      <PageHead title="Produits" sub={`${products.length} références · ${products.filter((p) => p.isActive).length} visibles dans la boutique`}>
+        <button className="btn lime" onClick={() => openProductForm()}><Icon name="plus" />Nouveau produit</button>
       </PageHead>
       {actionError && <div className="card action-error" role="alert">{actionError}</div>}
+      <CategoryManager categories={categoriesQuery.data}/>
       <div className="filters">
         <div className="tabs">{TABS.map(([k, l, n]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l} {n}</button>)}</div>
-        <label className="qinput"><Icon name="search" className="ic" style={{ width: 14, height: 14 }} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrer par nom ou note" /></label>
-        <div className="chips">{[{ key: '', label: 'Toutes les familles' }, ...FAMILIES].map((f) => <button key={f.key} className={'chip' + (fam === f.key ? ' on' : '')} onClick={() => setFam(f.key)}>{f.label}</button>)}</div>
+        <label className="qinput"><Icon name="search" className="ic" style={{ width: 14, height: 14 }} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nom, référence, caractéristique…" aria-label="Filtrer les produits"/></label>
+        <label className="field">Catégorie<select value={fam} onChange={e=>setFam(e.target.value)}><option value="">Toutes les catégories</option><option value="uncategorized">Sans catégorie</option>{categoriesQuery.data.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
       </div>
       <div className="product-cards">
         {list.map(p => <article className="card product-mobile" key={p.id}>
-          <div className="product-mobile-head"><Thumb product={p} /><div><h2>{p.name}</h2><p>{familyLabel(p.family)} · {p.size}</p></div></div>
+          <div className="product-mobile-head"><Thumb product={p} /><div><h2>{p.name}</h2><p>{p.categoryName||'Sans catégorie'} {p.size&&' · '+p.size}</p>{p.reference&&<small>Réf. {p.reference}</small>}</div></div>
           <div className="product-mobile-info"><strong className="num">{money(p.price, cur)}</strong><span className={p.stock === 0 ? 'stock-empty' : ''}>{p.stock === 0 ? 'En rupture' : p.stock + ' en stock'}</span></div>
           <div className="product-mobile-visibility"><span>Visible dans la boutique</span><Switch on={p.isActive} onChange={v => toggle(p, v)} label={'Visible : ' + p.name} /></div>
           <div className="product-mobile-actions"><button className="btn" onClick={() => openProductForm(p.id)}>Modifier</button><button className="btn" onClick={() => share(p)} aria-label={'Partager ' + p.name}>Partager</button><button className="btn danger" disabled={pending === p.id} onClick={() => remove(p)}>Supprimer</button></div>
         </article>)}
-        {!list.length && <div className="card empty">Aucun parfum ne correspond à ces filtres.</div>}
+        {!list.length && <div className="card empty">Aucun produit ne correspond à ces filtres.</div>}
       </div>
       <div className="card scroll-x products-table" style={{ padding: 6 }}>
         {list.length ? (
           <table className="tbl">
-            <thead><tr><th>Parfum</th><th>Famille</th><th className="r">Prix</th><th className="r">Stock</th><th>Visible</th><th /></tr></thead>
+            <thead><tr><th>Produit</th><th>Catégorie</th><th className="r">Prix</th><th className="r">Stock</th><th>Visible</th><th /></tr></thead>
             <tbody>{list.map((p) => (
               <tr key={p.id}>
-                <td><div className="cell"><Thumb product={p} /><div><b style={{ fontWeight: 500 }}>{p.name}</b> {p.badge && <span className="pill">{p.badge}</span>}<small>{p.size} · {p.note}</small></div></div></td>
-                <td>{familyLabel(p.family)}</td>
+                <td><div className="cell"><Thumb product={p} /><div><b style={{ fontWeight: 500 }}>{p.name}</b> {p.badge && <span className="pill">{p.badge}</span>}<small>{[p.reference,p.size].filter(Boolean).join(' · ')}</small></div></div></td>
+                <td>{p.categoryName||'Sans catégorie'}</td>
                 <td className="r num">{money(p.price, cur)}{p.oldPrice && <small className="muted" style={{ display: 'block', textDecoration: 'line-through' }}>{money(p.oldPrice, cur)}</small>}</td>
                 <td className="r num" style={{ color: p.stock === 0 ? 'var(--red)' : p.stock <= 3 ? 'var(--amber)' : undefined }}>{p.stock === 0 ? 'Rupture' : p.stock}</td>
                 <td><Switch on={p.isActive} onChange={(v) => toggle(p, v)} label={'Visible : ' + p.name} /></td>
@@ -84,7 +86,7 @@ export default function Products({ route }) {
                   <button className="icon-btn" disabled={pending === p.id} style={{ display: 'inline-grid' }} title="Supprimer" onClick={() => remove(p)}><Icon name="trash" /></button>
                 </td>
               </tr>))}</tbody>
-          </table>) : <div className="empty">Aucun parfum ne correspond à ces filtres.</div>}
+          </table>) : <div className="empty">Aucun produit ne correspond à ces filtres.</div>}
       </div>
     </>
   );

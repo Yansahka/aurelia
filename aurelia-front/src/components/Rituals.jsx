@@ -7,7 +7,7 @@ export default function Rituals({ onFamily }) {
   if (!collections.length) return null;
   return (
     <section className="sec" id="rituals">
-      <Reveal className="sh"><h2>Explorez nos familles <em>olfactives</em><br />douces et végétales</h2></Reveal>
+      <Reveal className="sh"><h2>Explorez nos<br /><em>catégories</em></h2></Reveal>
       <div className="rt">
         {collections.map((c, i) => (
           <Reveal as="a" key={c.slug} className="rc" href="#shop" style={{ transitionDelay: i * 90 + 'ms' }} onClick={() => onFamily(c.slug)}>

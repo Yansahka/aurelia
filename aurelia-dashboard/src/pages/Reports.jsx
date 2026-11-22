@@ -8,11 +8,11 @@ import { downloadCsv, reportCsvRows } from '../lib/csv';
 import { compact, money, num, pct } from '../lib/format';
 
 const METRICS = [['revenue', 'Chiffre d’affaires'], ['orders', 'Commandes livrées'], ['winrate', 'Taux de réussite'], ['avg', 'Panier moyen']];
-const GROUPS = [['month', 'Par mois'], ['product', 'Par parfum'], ['family', 'Par famille']];
+const GROUPS = [['month', 'Par mois'], ['product', 'Par produit'], ['category', 'Par catégorie']];
 
 // Les choix sont dans l'adresse (#/reports?m=…&g=…) : on peut partager la vue exacte.
 export default function Reports({ route }) {
-  const m = route.params.m || 'revenue', g = route.params.g || 'month';
+  const m = route.params.m || 'revenue', g = route.params.g==='family'?'category':route.params.g || 'month';
   const { data: r, error, refetch } = useQuery(`stats:report:${m}:${g}`, () => api.stats.report({ metric: m, group: g }));
   const { data: store, error: storeError, refetch: refetchStore } = useQuery('store', api.store.get);
   if (!METRICS.some(([key]) => key === m) || !GROUPS.some(([key]) => key === g)) return <QueryError message="Ce rapport n’existe pas. Choisissez une mesure et un regroupement valides." onRetry={() => navigate('reports')} action="Afficher le rapport par défaut" />;
@@ -42,7 +42,7 @@ export default function Reports({ route }) {
       </div>
       <div className="card scroll-x">
         <h3 style={{ marginBottom: 8 }}>Les chiffres</h3>
-        <table className="tbl"><thead><tr><th>{g === 'month' ? 'Mois' : g === 'product' ? 'Parfum' : 'Famille'}</th><th className="r">{label}</th><th className="r">Part</th></tr></thead>
+        <table className="tbl"><thead><tr><th>{g === 'month' ? 'Mois' : g === 'product' ? 'Produit' : 'Catégorie'}</th><th className="r">{label}</th><th className="r">Part</th></tr></thead>
           <tbody>{r.rows.map((x) => <tr key={x.key}><td>{g === 'month' ? x.key : x.label}</td><td className="r num">{['revenue', 'avg'].includes(m) ? money(x.value, cur) : fmt(x.value)}</td><td className="r muted">{x.share != null ? pct(x.share) : '—'}</td></tr>)}</tbody></table>
         <p className="hint" style={{ marginTop: 10 }}>Seules les commandes livrées comptent dans le chiffre d’affaires. Le taux de réussite = livrées / (livrées + annulées).</p>
       </div>

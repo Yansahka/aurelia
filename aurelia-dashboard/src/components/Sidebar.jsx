@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 
 const NAV = [
   { path: 'overview', icon: 'overview', label: 'Vue d’ensemble' },
-  { path: 'products', icon: 'bottle', label: 'Parfums' },
+  { path: 'products', icon: 'package', label: 'Produits' },
   { path: 'orders', icon: 'orders', label: 'Commandes', badge: 'orders' },
   { path: 'customers', icon: 'users', label: 'Clients' },
   { path: 'reviews', icon: 'star', label: 'Avis', badge: 'reviews' },
@@ -68,7 +68,7 @@ export default function Sidebar({ current }) {
       <div className="sp" />
       <div className="foot">
         <button className="nav-i" onClick={() => go('store')} title="Paramètres" aria-label="Paramètres"><Icon name="settings" /><span className="lbl">Paramètres</span></button>
-        <button className="nav-i" onClick={() => toast('Ajoutez vos parfums, vérifiez vos coordonnées dans « Ma boutique », puis partagez votre lien. Les demandes reçues apparaissent dans « Commandes ».')} title="Aide"><Icon name="help" /><span className="lbl">Aide</span></button>
+        <button className="nav-i" onClick={() => toast('Ajoutez vos produits, vérifiez vos coordonnées dans « Ma boutique », puis partagez votre lien. Les demandes reçues apparaissent dans « Commandes ».')} title="Aide"><Icon name="help" /><span className="lbl">Aide</span></button>
         <button className="nav-i" onClick={toggleTheme} title="Mode sombre"><Icon name={theme === 'dark' ? 'moon' : 'sun'} /><span className="lbl">Mode sombre</span>
           <span className={'sw lbl' + (theme === 'dark' ? ' on' : '')} style={{ marginLeft: 'auto' }} /></button>
         <button className="nav-i sidebar-logout" onClick={logout} aria-label="Déconnexion" title="Déconnexion"><Icon name="users" /><span className="lbl">Déconnexion</span></button>

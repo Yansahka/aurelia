@@ -26,7 +26,7 @@ export default function Topbar({ title }) {
 
   const results = useMemo(() => {
     const s = q.trim().toLowerCase(); if (s.length < 2) return [];
-    const p = (products || []).filter(x => x.name.toLowerCase().includes(s)).slice(0, 4).map(x => ({ k: 'p' + x.id, label: x.name, tag: 'Parfum', go: () => { window.dispatchEvent(new CustomEvent('products:reveal', { detail: x.name })); navigate('products', { q: x.name }); } }));
+    const p = (products || []).filter(x => x.name.toLowerCase().includes(s)).slice(0, 4).map(x => ({ k: 'p' + x.id, label: x.name, tag: 'Produit', go: () => { window.dispatchEvent(new CustomEvent('products:reveal', { detail: x.name })); navigate('products', { q: x.name }); } }));
     const o = (orders || []).filter(x => (x.code + ' ' + x.customerName).toLowerCase().includes(s)).slice(0, 4).map(x => ({ k: 'o' + x.id, label: '#' + x.code + ' · ' + x.customerName, tag: 'Commande', go: () => navigate('orders', { open: x.id }) }));
     return [...p, ...o];
   }, [q, products, orders]);
@@ -48,7 +48,7 @@ export default function Topbar({ title }) {
       <div className="crumb"><span className="crumb-store" title={store?.name}>{store?.name}</span><span className="crumb-divider" aria-hidden="true">/</span><b>{title}</b></div>
       <div className="search" onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }}>
         <div className="search-field"><Icon name="search" />
-          <input ref={input} value={q} onChange={e => { setQ(e.target.value); setActive(0); setOpen(true); }} onFocus={() => setOpen(true)} onKeyDown={onKeyDown} placeholder="Parfum, commande, client…" aria-label="Rechercher" role="combobox" aria-autocomplete="list" aria-expanded={expanded} aria-controls="global-search-results" aria-activedescendant={expanded && results[active] ? 'result-' + results[active].k : undefined} autoComplete="off" />
+          <input ref={input} value={q} onChange={e => { setQ(e.target.value); setActive(0); setOpen(true); }} onFocus={() => setOpen(true)} onKeyDown={onKeyDown} placeholder="Produit, commande, client…" aria-label="Rechercher" role="combobox" aria-autocomplete="list" aria-expanded={expanded} aria-controls="global-search-results" aria-activedescendant={expanded && results[active] ? 'result-' + results[active].k : undefined} autoComplete="off" />
           <kbd>Ctrl K</kbd>
         </div>
         {expanded && <div className="results" id="global-search-results" role="listbox" aria-label="Résultats de recherche">
@@ -57,7 +57,7 @@ export default function Topbar({ title }) {
         </div>}
       </div>
       <div className="top-actions">
-        <button className="btn lime top-create" onClick={() => openProductForm()} aria-label="Ajouter un parfum"><Icon name="plus" /><span>Nouveau</span></button>
+        <button className="btn lime top-create" onClick={() => openProductForm()} aria-label="Ajouter un produit"><Icon name="plus" /><span>Nouveau</span></button>
         <button className="icon-btn top-notifications" onClick={() => navigate('orders')} aria-label="Nouvelles commandes"><Icon name="bell" />{newCount > 0 && <span className="rd">{newCount}</span>}</button>
         {me && <span className="top-avatar"><Avatar name={me.name} size={36} /></span>}
         <button className="btn ghost top-logout" onClick={logout}>Déconnexion</button>

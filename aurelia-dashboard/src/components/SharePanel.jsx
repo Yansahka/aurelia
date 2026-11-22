@@ -8,7 +8,7 @@ import Icon from './ui/Icon';
 export default function SharePanel({ store }) {
   const toast = useToast();
   const url = storeUrl(store.slug);
-  const [msg, setMsg] = useState(store.shareMessage || `Découvrez ${store.name} : nos parfums, à commander directement sur WhatsApp.`);
+  const [msg, setMsg] = useState(store.shareMessage || `Découvrez ${store.name} : nos produits, à commander directement sur WhatsApp.`);
   const [phone, setPhone] = useState('');
   const full = shareText(store, msg);
   const phoneOk = !phone || /^[1-9]\d{7,14}$/.test(phone.replace(/[\s+]/g, ''));
