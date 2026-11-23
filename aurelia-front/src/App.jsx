@@ -19,6 +19,7 @@ import Landing from './pages/Landing';
 import ShopTheme from './components/ShopTheme';
 import ProductPage from './components/ProductPage';
 import { currentProductId } from './config';
+import AccountSecurity from './pages/AccountSecurity';
 
 function Shop() {
   const [query, setQuery] = useState(()=>new URLSearchParams(location.search).get('q')||'');
@@ -46,6 +47,7 @@ function Shop() {
 }
 
 export default function App() {
+  if(window.location.pathname.startsWith('/compte/'))return <AccountSecurity/>;
   if (!window.location.pathname.startsWith('/s/') && window.location.pathname !== '/demo') return <Landing />;
   return (
     <ToastProvider>

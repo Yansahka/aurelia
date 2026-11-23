@@ -34,6 +34,10 @@ try {
     await c.query(await readFile(new URL('./migrations/006-local-media.sql', import.meta.url), 'utf8'));
     await c.query('INSERT INTO aurelia_migrations(name) VALUES ($1)', ['006-local-media']);
   }
+  if (!applied.includes('007-account-security')) {
+    await c.query(await readFile(new URL('./migrations/007-account-security.sql', import.meta.url), 'utf8'));
+    await c.query('INSERT INTO aurelia_migrations(name) VALUES ($1)', ['007-account-security']);
+  }
   await c.query('COMMIT');
   console.log('Migrations PostgreSQL appliquées.');
 } catch (e) { await c.query('ROLLBACK'); console.error('Migration échouée :', e.code || e.message); process.exitCode = 1; }

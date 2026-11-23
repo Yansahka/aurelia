@@ -8,7 +8,7 @@ import { createLocalPool } from '../local-pool.js';
 test('Catalogue universel : categories, photos, caracteristiques et isolation',async t=>{
  const native=process.env.AURELIA_CATALOGUE_NATIVE==='1';
  const pool=native?(await import('../db.js')).pool:await createLocalPool();
- const server=createApp(pool,{quiet:true,authLimit:200}).listen(0,'127.0.0.1');await once(server,'listening');
+ const server=createApp(pool,{mailer:async()=>{},quiet:true,authLimit:200}).listen(0,'127.0.0.1');await once(server,'listening');
  t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});
  const base=`http://127.0.0.1:${server.address().port}/v1`,suffix=randomUUID().slice(0,8);
  const req=async(path,{method='GET',cookie,body}={})=>{

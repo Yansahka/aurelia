@@ -1,5 +1,7 @@
 # Validation complète locale — lot 5
 
+Mise à jour du 23 novembre : le [lot 6 de sécurité des comptes](SECURITE-COMPTES.md) porte la suite à 80 tests réussis et ajoute les contrôles natifs de récupération et de vérification e-mail. Les résultats du lot 5 ci-dessous constituent le bilan de cette étape précédente.
+
 Vérifié le **23 novembre 2026**, branche `feature/validation-complete-lot-5`, après les quatre lots de catalogue, personnalisation, variantes et images locales. Le fonctionnement commercial reste une demande de commande finalisée avec le vendeur sur WhatsApp.
 
 ## Résultats techniques

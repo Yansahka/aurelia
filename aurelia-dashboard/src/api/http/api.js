@@ -13,6 +13,7 @@ async function req(path, { method = 'GET', body, params } = {}) {
 }
 
 export const httpApi = {
+  account:{resendVerification:()=>req('/auth/resend-verification',{method:'POST',body:{}})},
   media: {upload:async(file)=>{
     const body=new FormData();body.append('image',file);
     const res=await fetch(CONFIG.API_BASE+'/media',{method:'POST',credentials:'include',body});

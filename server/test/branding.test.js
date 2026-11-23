@@ -9,7 +9,7 @@ import { brandStyle, contrast } from '../../shared/branding.js';
 test('Identite des boutiques et fiches produit partageables',async t=>{
  const native=process.env.AURELIA_BRANDING_NATIVE==='1';
  const pool=native?(await import('../db.js')).pool:await createLocalPool();
- const server=createApp(pool,{quiet:true,authLimit:200}).listen(0,'127.0.0.1');await once(server,'listening');
+ const server=createApp(pool,{mailer:async()=>{},quiet:true,authLimit:200}).listen(0,'127.0.0.1');await once(server,'listening');
  t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});
  const base=`http://127.0.0.1:${server.address().port}`,suffix=randomUUID().slice(0,8);
  const req=async(path,{method='GET',cookie,body}={})=>{const r=await fetch(base+'/v1'+path,{method,headers:{Origin:'http://localhost:3000','Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});const text=await r.text();return {status:r.status,body:text?JSON.parse(text):null,cookie:r.headers.get('set-cookie')?.split(';')[0]};};

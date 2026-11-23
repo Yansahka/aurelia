@@ -11,6 +11,7 @@ import { catalogueProducts, productExtras, saveExtras, categoryRoutes } from './
 import { color, imageUrl, validateBranding } from './branding.js';
 import { prepareVariants, saveVariants, variantSummary } from './variants.js';
 import { mediaRoutes, validateImageReference } from './media.js';
+import { accountSecurity,checkPassword } from './account-security.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const uuid = id => { if (!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id)) fail(404, 'Élément introuvable.'); return id; };
@@ -59,7 +60,7 @@ export function createApp(pool, options = {}) {
   };
   async function authenticate(req) {
     const token = readToken(req); if (!token) fail(401,'Connectez-vous à votre compte.');
-    const r = await pool.query(`SELECT u.id,u.name,u.email,s.id AS store_id FROM sessions se JOIN users u ON u.id=se.user_id JOIN stores s ON s.owner_id=u.id AND s.status='active' WHERE se.token_hash=$1 AND se.expires_at>now()`,[digest(token)]);
+    const r = await pool.query(`SELECT u.id,u.name,u.email,u.email_verified_at,s.id AS store_id FROM sessions se JOIN users u ON u.id=se.user_id JOIN stores s ON s.owner_id=u.id AND s.status='active' WHERE se.token_hash=$1 AND se.expires_at>now()`,[digest(token)]);
     if (!r.rows[0]) fail(401,'Session expirée. Reconnectez-vous.');
     return r.rows[0];
   }
@@ -74,9 +75,10 @@ export function createApp(pool, options = {}) {
   app.get('/v1/health', async (req,res) => { await pool.query('SELECT 1'); res.json({status:'ok'}); });
   categoryRoutes(app,tenant);
   mediaRoutes(app,tenant,options);
+  const accounts=accountSecurity(app,{pool,transaction,authenticate,options});
   app.post('/v1/auth/register',authLimiter,async(req,res)=>{
     const d=req.body || {}, address=email(d.email), name=text(d.name,'Nom',100), storeName=text(d.storeName,'Nom de boutique',100), storeSlug=slug(d.slug), whatsapp=phone(d.whatsapp);
-    if (typeof d.password!=='string' || d.password.length<12 || d.password.length>128) fail(400,'Le mot de passe doit contenir de 12 à 128 caractères.');
+    checkPassword(d.password);
     const hash=await hashPassword(d.password);
     const result=await transaction(async c=>{
       const user=one(await c.query('INSERT INTO users(email,name,password_hash) VALUES($1,$2,$3) RETURNING id,name,email',[address,name,hash]));
@@ -84,21 +86,26 @@ export function createApp(pool, options = {}) {
       const setCookie=await session(c,res,user.id);
       return {user,store,setCookie};
     });
-    result.setCookie(); res.status(201).json({user:result.user,store:result.store});
+    // Un incident d'e-mail ne doit pas faire croire que l'inscription déjà validée a échoué.
+    try{await accounts.request(result.user.id,'verify-email');}catch{if(!options.quiet)console.error('Vérification e-mail à redemander depuis Mon compte.');}
+    result.setCookie(); res.status(201).json({user:{...result.user,emailVerified:false},store:result.store});
   });
   app.post('/v1/auth/login',authLimiter,async(req,res)=>{
     const address=email(req.body?.email), password=req.body?.password;
     if(typeof password!=='string' || password.length>128) fail(400,'Mot de passe invalide.');
-    const user=(await pool.query('SELECT * FROM users WHERE lower(email)=$1',[address])).rows[0];
-    if(!await verifyPassword(password,user?.password_hash)) fail(401,'Adresse e-mail ou mot de passe incorrect.');
-    const setCookie=await transaction(c=>session(c,res,user.id)); setCookie();
-    res.json({user:{id:user.id,name:user.name,email:user.email}});
+    // Le même verrou que la réinitialisation empêche une connexion tardive avec l'ancien hash.
+    const {user,setCookie}=await transaction(async c=>{
+      const user=(await c.query('SELECT * FROM users WHERE lower(email)=$1 FOR UPDATE',[address])).rows[0];
+      if(!await verifyPassword(password,user?.password_hash))fail(401,'Adresse e-mail ou mot de passe incorrect.');
+      return {user,setCookie:await session(c,res,user.id)};
+    });setCookie();
+    res.json({user:{id:user.id,name:user.name,email:user.email,emailVerified:!!user.email_verified_at}});
   });
   app.post('/v1/auth/logout',async(req,res)=>{
     const token=readToken(req); if(token) await pool.query('DELETE FROM sessions WHERE token_hash=$1',[digest(token)]);
     res.clearCookie('aurelia_session',cookieOptions).sendStatus(204);
   });
-  app.get('/v1/auth/me',async(req,res)=>{ const u=await authenticate(req); res.json({id:u.id,name:u.name,email:u.email,role:'owner'}); });
+  app.get('/v1/auth/me',async(req,res)=>{ const u=await authenticate(req); res.json({id:u.id,name:u.name,email:u.email,emailVerified:!!u.email_verified_at,role:'owner'}); });
   app.get('/v1/store',async(req,res)=>res.json(await tenant(req,async(c,s)=>s)));
   app.patch('/v1/store',async(req,res)=>res.json(await tenant(req,async(c,s)=>{
     const d=req.body || {}, values=[], cols=[];
@@ -238,7 +245,7 @@ export function createApp(pool, options = {}) {
   app.use('/dashboard',express.static(dashboard));
   app.get(/^\/dashboard(?:\/.*)?$/, (req,res)=>res.sendFile(resolve(dashboard,'index.html')));
   app.use(express.static(front));
-  app.get(/^\/(?:s\/[^/]+(?:\/p\/[^/]+)?\/?|demo\/?)?$/, (req,res)=>res.sendFile(resolve(front,'index.html')));
+  app.get(/^\/(?:s\/[^/]+(?:\/p\/[^/]+)?\/?|demo\/?|compte\/(?:mot-de-passe-oublie|reinitialiser|verifier-email)\/?)?$/, (req,res)=>res.sendFile(resolve(front,'index.html')));
   app.use((err,req,res,next)=>{
     const conflict=err.code==='23505'||err.code==='23503', bad=err.code==='22P02'||err.code==='23514';
     const status=err.status || (conflict?409:bad?400:500);

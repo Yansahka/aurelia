@@ -82,6 +82,8 @@ Remplacer `DATABASE_URL` dans `.env` par la connexion `aurelia_app`. Garder la c
 
 ## 4. Démarrer et valider
 
+La migration 007 ajoute `users.email_verified_at` et `account_tokens` sans modifier les mots de passe, les sessions ou les données métier existantes. Pour un rôle applicatif personnalisé, accorder `SELECT, INSERT, UPDATE, DELETE ON account_tokens`. Les e-mails de compte sont enregistrés localement par défaut ; configurer SMTP et `APP_PUBLIC_URL` avant la production. Le [guide de sécurité des comptes](SECURITE-COMPTES.md) détaille les parcours, les limites et les tests.
+
 La migration 006 ajoute les métadonnées `media_assets` et autorise les références `/media/…` dans les galeries, logos et couvertures sans modifier les lignes existantes. Pour un rôle SQL personnalisé, accorder les droits `SELECT, INSERT, UPDATE, DELETE ON media_assets`. Le compte applicatif reste sans privilège de contournement RLS. Exécuter `npm run db:migrate`, installer les nouvelles dépendances, compiler puis redémarrer l’API. Les fichiers sont conservés séparément de la base : voir [IMAGES.md](IMAGES.md).
 
 La migration 005 ajoute `product_variants`, les options des produits et les instantanés des variantes dans les lignes de commande. Elle ne convertit aucun produit existant et ne recalcule aucun montant historique. Exécuter `npm run db:migrate` avec le propriétaire avant de démarrer cette version. Les rôles locaux `aurelia_app_*`, `aurelia_app` et `aurelia_local` reçoivent les droits sur la nouvelle table ; pour un rôle personnalisé, accorder explicitement `SELECT, INSERT, UPDATE, DELETE ON product_variants`. La RLS reste obligatoire, avec `app.store_id` fixé par les transactions de l’API. `npm run test:variants:postgres` valide les variantes, les stocks et l’isolation sur la base configurée.
@@ -122,7 +124,7 @@ Sur le serveur Node, configurer `DATABASE_URL`, `NODE_ENV=production`, `PORT` et
 
 Configurer un reverse proxy HTTPS devant Node. Définir `TRUST_PROXY=1` uniquement si une seule couche de proxy de confiance se trouve devant le serveur et que Node n’est pas directement exposé. Les cookies Secure nécessitent HTTPS. Ne pas déplacer le dashboard et l’API sur des domaines indépendants sans revoir le routage et les cookies.
 
-Sauvegarder PostgreSQL, tester la restauration et surveiller les erreurs API. Le limiteur de requêtes utilise la mémoire d’un processus ; avant une exploitation à plusieurs instances, passer à un stockage de limitation partagé. Ajouter également la récupération de mot de passe et la vérification e-mail avant une ouverture commerciale large. La facturation et le paiement en ligne ne font pas partie de cette version.
+Sauvegarder PostgreSQL, tester la restauration et surveiller les erreurs API. Le limiteur de requêtes utilise la mémoire d’un processus ; avant une exploitation à plusieurs instances, passer à un stockage de limitation partagé. Configurer et tester la remise SMTP des e-mails de récupération et de vérification avant une ouverture commerciale large. La facturation et le paiement en ligne ne font pas partie de cette version.
 
 ## 6. Limites et évolutions
 

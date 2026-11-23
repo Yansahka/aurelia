@@ -6,7 +6,7 @@ import { createApp } from '../app.js';
 
 test('Parcours SaaS et isolation sur PostgreSQL embarqué (RLS active)', async t=>{
   const pool=await createLocalPool();
-  const server=createApp(pool,{authLimit:200,rateLimit:2000,quiet:true}).listen(0,'127.0.0.1');
+  const server=createApp(pool,{mailer:async()=>{},authLimit:200,rateLimit:2000,quiet:true}).listen(0,'127.0.0.1');
   await once(server,'listening');
   const base=`http://127.0.0.1:${server.address().port}/v1`;
   t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});

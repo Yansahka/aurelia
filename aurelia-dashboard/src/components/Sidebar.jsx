@@ -16,6 +16,7 @@ const NAV = [
   { path: 'reviews', icon: 'star', label: 'Avis', badge: 'reviews' },
   { path: 'reports', icon: 'chart', label: 'Rapports' },
   { path: 'store', icon: 'store', label: 'Ma boutique' },
+  { path: 'account', icon: 'users', label: 'Mon compte' },
 ];
 
 export default function Sidebar({ current }) {

@@ -12,7 +12,7 @@ import {createLocalPool} from '../local-pool.js';
 test('Parcours complet : compte, identité, médias, catégories, variantes, commande et rapports',async t=>{
  const native=process.env.AURELIA_JOURNEY_NATIVE==='1',pool=native?(await import('../db.js')).pool:await createLocalPool();
  const mediaDirectory=native?resolve(process.env.MEDIA_DIRECTORY||'.local/uploads'):await mkdtemp(join(tmpdir(),'aurelia-journey-'));
- let server,base;const start=async()=>{server=createApp(pool,{quiet:true,authLimit:200,mediaDirectory}).listen(0,'127.0.0.1');await once(server,'listening');base=`http://127.0.0.1:${server.address().port}`;};await start();
+ let server,base;const start=async()=>{server=createApp(pool,{mailer:async()=>{},quiet:true,authLimit:200,mediaDirectory}).listen(0,'127.0.0.1');await once(server,'listening');base=`http://127.0.0.1:${server.address().port}`;};await start();
  t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();if(!native)await rm(mediaDirectory,{force:true,recursive:true});});
  const req=async(path,{method='GET',cookie,body}={})=>{const r=await fetch(base+'/v1'+path,{method,headers:{Origin:'http://localhost:3000','Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});return {status:r.status,body:await r.json().catch(()=>null),cookie:r.headers.get('set-cookie')?.split(';')[0]};};
  const suffix=randomUUID().slice(0,8),account=n=>({name:'Validation complète',email:`parcours-${n}-${suffix}@example.test`,password:'Parcours-Complet-Local-2026!',storeName:`Parcours ${n}`,slug:`parcours-${n}-${suffix}`,whatsapp:'237690000000'});

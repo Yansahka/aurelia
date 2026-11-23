@@ -7,7 +7,7 @@ import { createApp } from './app.js';
 // Integration native : conserve uniquement les comptes de test identifies ci-dessous.
 const suffix = `${Date.now()}-${randomBytes(2).toString('hex')}`;
 const password = randomBytes(24).toString('hex');
-const server = createApp(pool, { authLimit: 200, quiet: true }).listen(0, '127.0.0.1');
+const server = createApp(pool, { mailer:async()=>{}, authLimit: 200, quiet: true }).listen(0, '127.0.0.1');
 await once(server, 'listening');
 const base = `http://127.0.0.1:${server.address().port}/v1`;
 let checks = 0;

@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-11-23T09:14:24.532Z",
+  "store": "Yanshop",
+  "branch": "feature/securite-comptes-lot-6",
+  "backup": ".local/backups/lot6-2026-11-23",
+  "counts": {
+    "categories": {
+      "before": 5,
+      "after": 5,
+      "originalRowsUnchanged": true
+    },
+    "product_images": {
+      "before": 1,
+      "after": 1,
+      "originalRowsUnchanged": true
+    },
+    "product_variants": {
+      "before": 0,
+      "after": 0,
+      "originalRowsUnchanged": true
+    },
+    "media_assets": {
+      "before": 3,
+      "after": 3,
+      "originalRowsUnchanged": true
+    },
+    "products": {
+      "before": 9,
+      "after": 9,
+      "originalRowsUnchanged": true
+    },
+    "customers": {
+      "before": 1,
+      "after": 1,
+      "originalRowsUnchanged": true
+    },
+    "orders": {
+      "before": 1,
+      "after": 1,
+      "originalRowsUnchanged": true
+    },
+    "reviews": {
+      "before": 0,
+      "after": 0,
+      "originalRowsUnchanged": true
+    },
+    "tasks": {
+      "before": 0,
+      "after": 0,
+      "originalRowsUnchanged": true
+    },
+    "events": {
+      "before": 27,
+      "after": 27,
+      "originalRowsUnchanged": true
+    },
+    "newsletter_subscribers": {
+      "before": 0,
+      "after": 0,
+      "originalRowsUnchanged": true
+    },
+    "order_items": {
+      "before": 1,
+      "after": 1,
+      "originalRowsUnchanged": true
+    }
+  },
+  "originalStoreUnchanged": true,
+  "originalRowsUnchanged": true,
+  "imageFiles": {
+    "checked": 3,
+    "sha256Unchanged": true
+  }
+}

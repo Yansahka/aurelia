@@ -10,5 +10,6 @@ try {
   await pool.end();
   process.exit(1);
 }
-const server = createApp(pool).listen(port, () => console.log(`Aurelia : http://localhost:${port}`));
-for (const signal of ['SIGINT','SIGTERM']) process.on(signal, () => server.close(async () => { await pool.end(); process.exit(0); }));
+const app=createApp(pool);
+const server = app.listen(port, () => console.log(`Aurelia : http://localhost:${port}`));
+for (const signal of ['SIGINT','SIGTERM']) process.on(signal, () => server.close(async () => { await app.locals.flushMail();await pool.end(); process.exit(0); }));

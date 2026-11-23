@@ -7,7 +7,7 @@ import { createLocalPool } from '../local-pool.js';
 
 test('Variantes : prix, stocks, isolation et historique des commandes',async t=>{
  const native=process.env.AURELIA_VARIANTS_NATIVE==='1',pool=native?(await import('../db.js')).pool:await createLocalPool();
- const server=createApp(pool,{quiet:true,authLimit:200}).listen(0,'127.0.0.1');await once(server,'listening');t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});
+ const server=createApp(pool,{mailer:async()=>{},quiet:true,authLimit:200}).listen(0,'127.0.0.1');await once(server,'listening');t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});
  const base=`http://127.0.0.1:${server.address().port}/v1`,suffix=randomUUID().slice(0,8);
  const req=async(path,{method='GET',cookie,body}={})=>{const r=await fetch(base+path,{method,headers:{Origin:'http://localhost:3000','Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});const text=await r.text();return {status:r.status,body:text?JSON.parse(text):null,cookie:r.headers.get('set-cookie')?.split(';')[0]};};
  const account=n=>({name:'Vendeur variantes',email:`variantes-${n}-${suffix}@example.test`,password:'Variantes-Test-Local-2026!',storeName:`Variantes ${n}`,slug:`variantes-${n}-${suffix}`,whatsapp:'237690000000'});

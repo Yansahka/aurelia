@@ -11,10 +11,12 @@ import ProductFormModal from './ProductFormModal';
 import ShareModal from './ShareModal';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import AccountPage from '../pages/AccountPage';
+import VerificationNotice from './VerificationNotice';
 
 const PAGES = {
   overview: [Overview, 'Vue d’ensemble'], products: [Products, 'Produits'], orders: [Orders, 'Commandes'], customers: [Customers, 'Clients'],
-  reviews: [Reviews, 'Avis'], reports: [Reports, 'Rapports'], store: [StorePage, 'Ma boutique'],
+  reviews: [Reviews, 'Avis'], reports: [Reports, 'Rapports'], store: [StorePage, 'Ma boutique'],account:[AccountPage,'Mon compte'],
 };
 
 export default function Shell() {
@@ -27,7 +29,7 @@ export default function Shell() {
       {mobileOpen && <div className="scrim" onClick={closeMobile} />}
       <div className="main" inert={mobileOpen ? '' : undefined}>
         <Topbar title={title} />
-        <div className="page" key={route.path}><Page route={route} /></div>
+        <div className="page" key={route.path}>{route.path!=='account'&&<VerificationNotice/>}<Page route={route} /></div>
       </div>
       <ProductFormModal />
       <ShareModal />
