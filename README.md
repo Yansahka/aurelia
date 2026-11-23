@@ -102,4 +102,8 @@ L’import envoie immédiatement le fichier à l’application ; l’association
 
 ## Périmètre actuel
 
+Le lot 5 valide l’ensemble du parcours sur PostgreSQL natif, avec conservation de Yanshop et de ses fichiers. Le [rapport complet](docs/validation-complete-lot5/rapport-lot5.html) présente les résultats et les corrections ; [docs/VERIFICATION.md](docs/VERIFICATION.md) donne la matrice de tests. `npm run test:journey:postgres` rejoue le scénario combinant compte, identité, import, catalogue, variantes, commande, livraison et redémarrage sur des boutiques de test indépendantes. Le [plan des lots](docs/PLAN-GENERALISATION.md) est conservé dans le dépôt.
+
+Dans « Commandes », utiliser « Actualiser les commandes » ou la cloche pour récupérer les nouvelles demandes sans recharger le dashboard. Le panier public gère désormais le focus du clavier, le blocage du fond et la fermeture par Échap.
+
 Les commandes sont des demandes commerciales : aucun paiement en ligne, aucune réservation ni décrémentation automatique du stock. La disponibilité est vérifiée à la demande, puis le vendeur confirme sur WhatsApp. Les avis existants peuvent être publiés depuis le dashboard ; la collecte de nouveaux avis et la création de tâches ne sont pas encore proposées dans l’interface. Pas de facturation des abonnements, de vérification e-mail ni de récupération de mot de passe pour l’instant. Un compte correspond à une boutique et un propriétaire. Le changement de slug change immédiatement l’adresse publique et les anciens liens cessent de fonctionner.

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api';
 import { useUI } from '../context/UIContext';
-import { useQuery } from '../hooks/useQuery';
+import { invalidate, useQuery } from '../hooks/useQuery';
 import { navigate } from '../hooks/useRoute';
 import Icon from './ui/Icon';
 import { Avatar } from './ui/Bits';
@@ -58,7 +58,7 @@ export default function Topbar({ title }) {
       </div>
       <div className="top-actions">
         <button className="btn lime top-create" onClick={() => openProductForm()} aria-label="Ajouter un produit"><Icon name="plus" /><span>Nouveau</span></button>
-        <button className="icon-btn top-notifications" onClick={() => navigate('orders')} aria-label="Nouvelles commandes"><Icon name="bell" />{newCount > 0 && <span className="rd">{newCount}</span>}</button>
+        <button className="icon-btn top-notifications" onClick={() => {invalidate('orders','stats','customers');navigate('orders');}} aria-label="Nouvelles commandes"><Icon name="bell" />{newCount > 0 && <span className="rd">{newCount}</span>}</button>
         {me && <span className="top-avatar"><Avatar name={me.name} size={36} /></span>}
         <button className="btn ghost top-logout" onClick={logout}>Déconnexion</button>
       </div>

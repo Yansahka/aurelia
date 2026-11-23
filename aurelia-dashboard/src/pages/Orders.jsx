@@ -83,6 +83,7 @@ export default function Orders({ route }) {
     <>
       <PageHead title="Commandes" sub={`${open.length} commandes ouvertes · ${money(open.reduce((t, o) => t + o.total, 0), store.currency)} en jeu`} />
       <div className="filters">
+        <button className="btn" disabled={ordersQuery.loading} onClick={()=>invalidate('orders','stats','customers')}>{ordersQuery.loading?'Actualisation…':'Actualiser les commandes'}</button>
         <div className="tabs">{[['board', 'Tableau'], ['list', 'Liste']].map(([k, l]) => <button key={k} className={view === k ? 'on' : ''} onClick={() => setView(k)}>{l}</button>)}</div>
         <label className="qinput"><Icon name="search" className="ic" style={{ width: 14, height: 14 }} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrer par client, code ou produit" /></label>
       </div>

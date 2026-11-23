@@ -1,29 +1,27 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { productImage } from '../lib/art';
 import { CloseIcon } from './ui/Icons';
+import { useDrawerDialog } from '../hooks/useDrawerDialog';
 
 export default function CartDrawer() {
   const { money } = useStore();
   const { lines, total, open, busy, checkoutError, hasUnavailable,closeBag, changeQty,removeLine, checkout } = useCart();
 
-  useEffect(() => {
-    const on = (e) => e.key === 'Escape' && closeBag();
-    addEventListener('keydown', on);
-    return () => removeEventListener('keydown', on);
-  }, [closeBag]);
+  const drawer=useRef(null);
+  useDrawerDialog(drawer,open,closeBag);
 
   return (
     <>
-      <div className={'ov' + (open ? ' on' : '')} onClick={closeBag} />
-      <aside className={'dr' + (open ? ' on' : '')} aria-label="Panier">
+      <div className={'ov' + (open ? ' on' : '')} onClick={closeBag} aria-hidden="true" />
+      <aside ref={drawer} className={'dr' + (open ? ' on' : '')} role="dialog" aria-modal={open?'true':undefined} aria-hidden={!open} inert={open?undefined:''} aria-label="Panier" tabIndex={-1}>
         <div className="dh"><span>Votre <em>panier</em></span><button className="ib" onClick={closeBag} aria-label="Fermer"><CloseIcon /></button></div>
         <div className="di">
           {lines.length ? lines.map(({ product: p, qty,key,available,unavailableReason }) => (
             <div className="ci" key={key}>
               <div className="t"><img src={productImage(p)} alt="" /></div>
-              <div><b>{p.name}</b>{p.variantLabel&&<small>{p.variantLabel}</small>}<small>{p.size} {available&&' · '+money(p.price)}</small>{!available&&<p className="cart-unavailable" role="alert">{unavailableReason}</p>}<button className="cart-remove" onClick={()=>removeLine(key)} aria-label={'Retirer '+p.name+(p.variantLabel?' '+p.variantLabel:'')}>Retirer</button></div>
+              <div><b>{p.name}</b>{p.variantLabel&&<small>{p.variantLabel}</small>}<small>{p.size}{available&&(p.size?' · ':'')+money(p.price)}</small>{!available&&<p className="cart-unavailable" role="alert">{unavailableReason}</p>}<button className="cart-remove" onClick={()=>removeLine(key)} aria-label={'Retirer '+p.name+(p.variantLabel?' '+p.variantLabel:'')}>Retirer</button></div>
               <div className="qty">
                 <button onClick={() => changeQty(key, -1)} aria-label="Moins">−</button>{qty}<button disabled={!available||qty>=p.stock} onClick={() => changeQty(key, 1)} aria-label="Plus">+</button>
               </div>

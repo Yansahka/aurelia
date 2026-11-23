@@ -84,7 +84,7 @@ export default function Overview() {
           <div className="eyebrow">Prochaine action</div>
           {nb ? <>
             <h2>{nb.items[0]?.name}{nb.items.length > 1 ? ` +${nb.items.length - 1}` : ''}</h2>
-            <div className="sub">{nb.customerName} · {stageLabel(nb.status)} · relance {relDays(nb.followUpAt || nb.createdAt)}</div>
+            <div className="sub">{nb.customerName} · {stageLabel(nb.status)} · relance {relDays(nb.followUpAt)}</div>
             <div className="big num">{c(nb.total)}</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button className="btn lime" onClick={() => window.open(waLink(orderMessage(nb, store, (n) => money(n, cur)), nb.phone), '_blank', 'noopener')}><Icon name="chat" />Écrire sur WhatsApp</button>

@@ -1,0 +1,30 @@
+{
+  "code": "AU-5A5CB70C",
+  "total": 44500,
+  "status": "delivered",
+  "notes": "Validation lot 5 : demande enregistrée, sans paiement ni message envoyé.",
+  "lines": [
+    {
+      "name_snapshot": "T-shirt Horizon",
+      "unit_price": "14500",
+      "qty": 1,
+      "variant_label": "Taille : L · Couleur : Bleu · Format : Unité",
+      "variant_reference": "HOR-L-B-U"
+    },
+    {
+      "name_snapshot": "Accessoire de validation lot 5",
+      "unit_price": "5000",
+      "qty": 1,
+      "variant_label": "",
+      "variant_reference": ""
+    },
+    {
+      "name_snapshot": "T-shirt Horizon",
+      "unit_price": "12500",
+      "qty": 2,
+      "variant_label": "Taille : M · Couleur : Bleu · Format : Unité",
+      "variant_reference": "HOR-M-B-U"
+    }
+  ],
+  "messageSent": false
+}

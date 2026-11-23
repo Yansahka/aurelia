@@ -1,22 +1,48 @@
-# Vérifications de la version locale
+# Validation complète locale — lot 5
 
-Vérifié le 22 novembre 2026.
+Vérifié le **23 novembre 2026**, branche `feature/validation-complete-lot-5`, après les quatre lots de catalogue, personnalisation, variantes et images locales. Le fonctionnement commercial reste une demande de commande finalisée avec le vendeur sur WhatsApp.
 
-- Les deux applications React compilent avec Vite (`npm run build`).
-- `npm test` : 11 tests réussis, dont le scénario principal et ses 10 sous-tests.
-- Les tests utilisent PostgreSQL embarqué PGlite avec les extensions pgcrypto et pg_trgm, le schéma SQL du projet et la migration des sessions.
-- L’API de test utilise un rôle sans superutilisateur ni BYPASSRLS. Une requête SQL sur les produits sans filtre explicite ne voit que ceux de la boutique sélectionnée ; en dehors de cette transaction, elle ne voit aucun produit.
-- Deux comptes sont inscrits séparément. Les catalogues et commandes sont distincts, et les modifications d’identifiants d’une autre boutique sont refusées.
-- Les doublons déclenchent une erreur et l’inscription est annulée dans son ensemble, sans compte orphelin.
-- Les mots de passe sont hachés ; le cookie de session porte HttpOnly et SameSite=Lax. Une session déconnectée est refusée côté serveur.
-- Le serveur recalcule les prix des commandes, refuse un produit provenant d’une autre boutique et rejette un stock insuffisant.
-- Les produits cachés ne sont pas publiés. Le contenu public n’inclut ni les clients ni les commandes privées.
-- Une commande livrée alimente les statistiques et les dépenses du client.
-- Inscription, arrivée sur le dashboard vide, création de produit et affichage sur la boutique publique vérifiés dans le navigateur.
-- Redémarrage du serveur local : compte, boutique et produit conservés dans `.local/postgres`.
+## Résultats techniques
 
-Un compte de contrôle nommé **Vendeur de test local**, une boutique **Atelier Test Local** et un parfum **Néroli de test** existent dans la base locale utilisée pour la vérification visuelle. Ils sont distincts des bases éphémères des tests automatiques. Créer son propre compte depuis la page d’accueil pour commencer avec un espace vide.
+| Commande | Résultat |
+|---|---|
+| `npm test` | 70 tests réussis, aucun échec, bases isolées |
+| `npm run test:postgres` | 17 contrôles réussis sur PostgreSQL natif |
+| `npm run test:catalogue:postgres` | 9 tests réussis |
+| `npm run test:branding:postgres` | 8 tests réussis |
+| `npm run test:variants:postgres` | 8 tests réussis |
+| `npm run test:media:postgres` | 8 tests réussis |
+| `npm run test:journey:postgres` | 8 tests réussis |
+| `npm run build` | Front et dashboard compilés avec succès |
 
-La capture `docs/aurelia-preview.jpg` montre le site commercial local. Aucun message WhatsApp n’a été envoyé pendant les vérifications.
+Les suites natives créent et conservent des boutiques de validation distinctes. Les tests isolés n’utilisent pas les données de la base locale. Le nouveau test `complete-journey.test.js` enchaîne inscription, identité visuelle, import, catégorie, produit simple, variantes, commande mixte, notes, livraison, statistiques, changement des prix et contrôle de l’historique, suppression douce, restauration, redémarrage et révocation de session. Il vérifie aussi les tentatives d’accès croisé entre deux vendeurs, leurs produits, images et commandes.
 
-La connexion réseau à un serveur PostgreSQL standard et le déploiement HTTPS ne sont pas vérifiés ici : aucune instance externe n’est configurée. Le moteur embarqué valide les requêtes et politiques SQL, mais ne couvre pas les certificats TLS, le pool de connexions réseau ni les opérations de sauvegarde d’un serveur PostgreSQL classique.
+## Contrôles navigateur
+
+- Formulaire d’inscription : « Épicerie du Soleil » génère `epicerie-du-soleil`. Le parcours d’inscription serveur est couvert par les suites automatisées.
+- Création d’un produit simple à 5 000 FCFA avec photo locale dans **Atelier Horizon**, distincte de Yanshop.
+- Commande mixte : 2 × 12 500 + 1 × 14 500 + 1 × 5 000 = **44 500 FCFA**. Les variantes, références et prix sont repris dans le brouillon WhatsApp. Le brouillon a été fermé sans envoyer de message.
+- Commande `AU-5A5CB70C` retrouvée dans le dashboard, notes enregistrées et état passé à « Livré ». Les trois lignes et le montant ont été revérifiés directement en PostgreSQL ; les ventes du mois reflètent ce montant (affiché sous forme compacte dans les indicateurs).
+- Actualisation : une nouvelle demande de test absente de la page déjà ouverte apparaît après « Actualiser les commandes », sans rechargement de la page.
+- Panier : fermé, il est inerte et masqué aux technologies d’assistance ; ouvert, le focus reste dans le dialogue, Tab et Maj+Tab bouclent, Échap ferme, le focus revient au bouton d’ouverture et le défilement du fond est restauré.
+- Mobile : fiche et panier à 390 et 320 pixels sans débordement horizontal ; quantité supérieure au stock bloquée. Détail de commande à 320 pixels : dialogue de 278 pixels sans débordement interne.
+- Connexion d’un second vendeur de test au catalogue vide, déconnexion, puis connexion du premier vendeur : les deux catalogues restent distincts, sans réutilisation des données en cache de l’autre compte.
+- Aucune erreur JavaScript remontée sur les vues de connexion et de panier contrôlées.
+
+## Corrections issues de la validation
+
+1. Panier accessible au clavier lorsqu’il était fermé et absence de gestion du focus/défilement en ouverture : dialogue modal, fond inerte, focus contenu et restauré.
+2. Commandes nouvelles absentes d’un dashboard déjà ouvert : bouton « Actualiser les commandes » et actualisation des données lors du clic sur la cloche.
+3. Date de création présentée comme une relance prévue : affichage de la vraie date de relance, ou « Non planifiée » lorsqu’elle manque.
+4. Séparateur « · » superflu dans le panier pour un produit sans format : prix affiché directement.
+5. Message de filtre sans résultat sur un compte sans produit : message invitant à ajouter le premier produit.
+
+## Conservation de Yanshop
+
+Une sauvegarde privée de la base et des fichiers a été créée dans `.local/backups/validation-lot5-2026-11-23`. Les neuf produits présents au début du lot, cinq catégories, un client, une commande et sa ligne, trois médias enregistrés, ainsi que tous les champs et événements initiaux sont conservés. Les trois fichiers d’images ont été comparés par SHA-256 et sont identiques. L’identité visuelle, les prix, stocks et dates initiales sont inchangés. Aucune migration ni modification du schéma n’était nécessaire dans ce lot.
+
+Le [rapport illustré](validation-complete-lot5/rapport-lot5.html), la [comparaison de Yanshop](validation-complete-lot5/conservation-yanshop.json) et la [commande de validation](validation-complete-lot5/commande-validation.json) donnent les preuves détaillées.
+
+## Limites de cette validation
+
+Validation effectuée localement avec PostgreSQL natif et le stockage local d’images. Le déploiement public HTTPS, les certificats et le futur fournisseur de stockage ne sont pas validés. Le navigateur couvre les interactions réelles décrites ci-dessus ; les suites CLI vérifient le serveur et les données et ne pilotent pas l’interface. Il n’y a pas d’envoi automatique de messages, de paiement en ligne ni de réservation/décrémentation automatique du stock. Les nouvelles commandes ne sont pas poussées en temps réel : utiliser l’actualisation ou la cloche pour relire les données. Les limites d’exploitation et les fonctions encore absentes restent décrites dans le README et le guide PostgreSQL.

@@ -13,6 +13,7 @@
     "test:branding:postgres": "node server/check-branding-postgres.js",
     "test:variants:postgres": "node server/check-variants-postgres.js",
     "test:media:postgres": "node server/check-media-postgres.js",
+    "test:journey:postgres": "node server/check-journey-postgres.js",
     "db:migrate": "node server/migrate.js",
     "build": "npm --prefix aurelia-front run build && npm --prefix aurelia-dashboard run build",
     "test": "node --test --test-concurrency=1 server/test/*.test.js"

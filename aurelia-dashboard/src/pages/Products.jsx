@@ -67,7 +67,7 @@ export default function Products({ route }) {
           <div className="product-mobile-visibility"><span>Visible dans la boutique</span><Switch on={p.isActive} onChange={v => toggle(p, v)} label={'Visible : ' + p.name} /></div>
           <div className="product-mobile-actions"><button className="btn" onClick={() => openProductForm(p.id)}>Modifier</button><button className="btn" onClick={() => share(p)} aria-label={'Partager ' + p.name}>Partager</button><button className="btn danger" disabled={pending === p.id} onClick={() => remove(p)}>Supprimer</button></div>
         </article>)}
-        {!list.length && <div className="card empty">Aucun produit ne correspond à ces filtres.</div>}
+        {!list.length && <div className="card empty">{products.length?'Aucun produit ne correspond à ces filtres.':'Votre catalogue est vide. Ajoutez votre premier produit.'}</div>}
       </div>
       <div className="card scroll-x products-table" style={{ padding: 6 }}>
         {list.length ? (
@@ -86,7 +86,7 @@ export default function Products({ route }) {
                   <button className="icon-btn" disabled={pending === p.id} style={{ display: 'inline-grid' }} title="Supprimer" onClick={() => remove(p)}><Icon name="trash" /></button>
                 </td>
               </tr>))}</tbody>
-          </table>) : <div className="empty">Aucun produit ne correspond à ces filtres.</div>}
+          </table>) : <div className="empty">{products.length?'Aucun produit ne correspond à ces filtres.':'Votre catalogue est vide. Ajoutez votre premier produit.'}</div>}
       </div>
     </>
   );
